@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .database import SessionLocal, engine
@@ -7,6 +8,14 @@ from .routers.cliente import router
 models.Base.metadata.create_all(bind=engine)  # crea tablas
 
 app = FastAPI(title="Clientes Microservice")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # en desarrollo usamos *
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db = SessionLocal()

@@ -1,28 +1,6 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from .config import Config
+import sys
+from pathlib import Path
 
-# Cargar configuración desde .env
-cfg = Config()
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-# Construcción del URL de conexión MySQL
-DATABASE_URL = (
-    f"mysql+pymysql://{cfg.MYSQL_USER}:{cfg.MYSQL_PASSWORD}"
-    f"@{cfg.MYSQL_HOST}/{cfg.MYSQL_DB}"
-)
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-def get_db():   
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+from core.database import engine, SessionLocal, Base, get_db

@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import schemas, crud, models
@@ -7,6 +8,14 @@ from app.routers import habitaciones
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Habitaciones Service")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # en desarrollo usamos *
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(habitaciones.router)
 

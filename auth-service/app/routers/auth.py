@@ -6,6 +6,7 @@ from app.security import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+print("REGISTER EJECUTADO")
 @router.post("/register")
 def register(usuario: schemas.UsuarioCreate, db=Depends(get_db)):
     nuevo = crud.crear_usuario(db, usuario)
