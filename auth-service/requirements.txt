@@ -3,7 +3,9 @@ uvicorn
 sqlalchemy
 pymysql
 pydantic
+pydantic-settings
 python-dotenv
 python-jose
 python-jose[cryptography]
 passlib
+cryptography

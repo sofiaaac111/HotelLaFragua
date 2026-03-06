@@ -6,3 +6,5 @@ python-dotenv
 cryptography
 requests
 apscheduler
+pydantic
+pydantic-settings

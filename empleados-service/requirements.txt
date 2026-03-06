@@ -3,6 +3,7 @@ uvicorn
 sqlalchemy
 pymysql
 pydantic
+pydantic-settings
 python-dotenv
 cryptography
 requests
