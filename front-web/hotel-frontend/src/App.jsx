@@ -1,23 +1,36 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
 
-import Login from "./pages/Login";
-import RegistroCliente from "./pages/RegistroCliente";
-import RegistroInfoCliente from "./pages/RegistroInfoCliente";
-import PerfilCliente from "./pages/PerfilCliente";
+// Layouts
+import LayoutCliente from "./layouts/LayoutCliente.jsx";
+import LayoutAdmin from "./layouts/LayoutAdmin.jsx";
+
+// Clientes
+import ClienteHome from "./pages/cliente/ClienteHome.jsx";
+import PerfilCliente from "./pages/cliente/PerfilCliente.jsx";
+import Login from "./pages/cliente/Login.jsx";
+import RegistroCliente from "./pages/cliente/RegistroCliente.jsx";
+import RegistroInfoCliente from "./pages/cliente/RegistroInfoCliente.jsx";
+
+// Admin
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 function App() {
   return (
-    <>
-      <Navbar />
-
-      <Routes>
-        <Route path="/" element={<Login />} />
+    <Routes>
+      {/* Clientes */}
+      <Route element={<LayoutCliente />}>
+        <Route path="/" element={<ClienteHome />} />
+        <Route path="/perfil" element={<PerfilCliente />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegistroCliente />} />
         <Route path="/registro-info" element={<RegistroInfoCliente />} />
-        <Route path="/perfil" element={<PerfilCliente />} />
-      </Routes>
-    </>
+      </Route>
+
+      {/* Admin */}
+      <Route path="/admin/*" element={<LayoutAdmin />}>
+        <Route index element={<AdminDashboard />} />
+      </Route>
+    </Routes>
   );
 }
 
