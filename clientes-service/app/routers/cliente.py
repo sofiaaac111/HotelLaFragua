@@ -1,43 +1,40 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from app.database import get_db
 from app import crud, schemas
-from app.security import get_current_user, require_admin
-from app import models
-from sqlalchemy.orm import Session
-
-
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
 
-@router.post("/")
-def crear_cliente(
-    cliente: schemas.ClienteCreate,
-    user = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    nuevo = models.Cliente(
-        usuario_id = user["id"],          
-        correo = user["correo"],          
-        nombre = cliente.nombre,
-        apellido = cliente.apellido,
-        tipo_documento = cliente.tipo_documento,
-        numero_documento = cliente.numero_documento,
-        telefono = cliente.telefono
-    )
+@router.post("/", response_model=schemas.Cliente)
+def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
+    nuevo = crud.crear_cliente(db, cliente)
 
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
+    if not nuevo:
+        raise HTTPException(status_code=400, detail="Cliente ya existe")
+
     return nuevo
 
-@router.get("/")
-def listar_clientes(user=Depends(require_admin), db=Depends(get_db)):
-    return crud.listar_clientes(db)
+@router.get("/", response_model=list[schemas.Cliente])
+def listar_clientes(db: Session = Depends(get_db)):
+    return crud.get_clientes(db)
 
-@router.post("/")
-def crear_cliente(
-    cliente: schemas.ClienteCreate,
-    user=Depends(get_current_user),
-    db=Depends(get_db)
-):
-    return crud.crear_cliente(db, cliente, user["id"])
+@router.get("/{cliente_id}", response_model=schemas.Cliente)
+def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    cliente = crud.get_cliente(db, cliente_id)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
+
+@router.put("/{cliente_id}", response_model=schemas.Cliente)
+def actualizar_cliente(cliente_id: int, cliente_update: schemas.ClienteUpdate, db: Session = Depends(get_db)):
+    cliente = crud.update_cliente(db, cliente_id, cliente_update)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
+
+@router.delete("/{cliente_id}")
+def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    eliminado = crud.delete_cliente(db, cliente_id)
+    if not eliminado:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return {"mensaje": "Cliente eliminado"}
