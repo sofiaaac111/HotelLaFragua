@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models import Usuario
-from app.security import hash_password, verify_password
+from .models import Usuario
+from .security import hash_password, verify_password
 
 def crear_usuario(db, usuario):
     nuevo = Usuario(

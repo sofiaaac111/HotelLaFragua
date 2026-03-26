@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Reserva
+from .models import Reserva
 import requests
 
 HABITACIONES_SERVICE_URL = "http://localhost:8082"
@@ -12,7 +12,7 @@ def verificar_habitacion(habitacion_id: int):
 
 
 from sqlalchemy.orm import Session
-from app.models import Reserva
+from .models import Reserva
 import requests
 from fastapi import HTTPException
 

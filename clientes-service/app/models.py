@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, func
 from .database import Base
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+colombia_tz = ZoneInfo("America/Bogota")
 
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -12,4 +15,7 @@ class Cliente(Base):
     numero_documento = Column(String(50))
     correo = Column(String(150))
     telefono = Column(String(20))
-    fecha_registro = Column(TIMESTAMP, default=datetime.utcnow)
+    fecha_registro = Column(
+        TIMESTAMP, 
+        default=lambda: datetime.now(colombia_tz)
+    )

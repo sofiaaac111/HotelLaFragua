@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Empleado
+from .models import Empleado
 
 def crear_empleado(db: Session, empleado):
     nuevo = Empleado(**empleado.dict())
