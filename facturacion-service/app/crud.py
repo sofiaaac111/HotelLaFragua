@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Factura
+from .models import Factura
 import requests
 from fastapi import HTTPException
 from datetime import date

@@ -18,9 +18,9 @@ def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db))
 def listar_clientes(db: Session = Depends(get_db)):
     return crud.get_clientes(db)
 
-@router.get("/{cliente_id}", response_model=schemas.Cliente)
-def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    cliente = crud.get_cliente(db, cliente_id)
+@router.get("/documento/{numero_documento}", response_model=schemas.Cliente)
+def obtener_cliente_por_documento(numero_documento: str, db: Session = Depends(get_db)):
+    cliente = crud.get_cliente_por_documento(db, numero_documento)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return cliente

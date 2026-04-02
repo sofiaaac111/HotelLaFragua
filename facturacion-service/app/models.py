@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Float, String, Date
-from app.database import Base
+from .database import Base
 from datetime import date
 
 class Factura(Base):

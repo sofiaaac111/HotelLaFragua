@@ -1,9 +1,9 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from app.database import engine, Base
+from .database import engine, Base
 from apscheduler.schedulers.background import BackgroundScheduler
-from app.routers import reservas
-from app.crud import actualizar_reservas_vencidas
+from .routers import reservas
+from .crud import actualizar_reservas_vencidas
 
 Base.metadata.create_all(bind=engine)
 
