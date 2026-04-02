@@ -1,12 +1,32 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 from .database import engine
 from . import models
 from .routers.cliente import router
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Clientes Microservice")
+app = FastAPI(
+    title="Clientes Microservice"
+)
+
+# Configurar seguridad para Swagger
+security = HTTPBearer()
+
+# Configurar esquema de seguridad para Swagger
+app.openapi_components = {
+    "securitySchemes": {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+}
+
+# Aplicar seguridad global a todos los endpoints
+app.openapi_security = [{"BearerAuth": []}]
 
 app.add_middleware(
     CORSMiddleware,

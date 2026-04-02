@@ -37,4 +37,3 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
             detail="Token inválido",
             headers={"WWW-Authenticate": "Bearer"},
         )
-

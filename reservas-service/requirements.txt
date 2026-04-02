@@ -8,3 +8,4 @@ requests
 apscheduler
 pydantic
 pydantic-settings
+python-jose

@@ -22,9 +22,10 @@ def create_habitacion(db: Session, habitacion: schemas.HabitacionCreate):
 
     db_habitacion = models.Habitacion(
         numero_habitacion=habitacion.numero_habitacion,
+        tipo_habitacion=habitacion.tipo_habitacion,
         descripcion=habitacion.descripcion,
         ocupacion=habitacion.ocupacion,
-        tipo_camas=habitacion.tipo_camas,
+        numero_camas=habitacion.numero_camas,
         precio_base=habitacion.precio_base,
         estado=habitacion.estado
     )

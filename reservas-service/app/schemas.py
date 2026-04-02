@@ -1,19 +1,30 @@
-from pydantic import BaseModel
-from datetime import date
+from pydantic import BaseModel, Field
+from datetime import date, datetime
+from typing import Optional, Literal
 
 class ReservaBase(BaseModel):
-    cliente_id: int
-    habitacion_id: int
+    identificacion_cliente: int = Field(..., gt=0)
+    tipo_habitacion: Literal["Individual", "Doble", "Familiar", "Suite"]
     fecha_inicio: date
     fecha_fin: date
-    total: float
+
+    class Config:
+        str_strip_whitespace = True
 
 class ReservaCreate(ReservaBase):
     pass
 
+class ReservaCheckin(BaseModel):
+    id_reserva: int
+
+class ReservaCheckout(BaseModel):
+    id_reserva: int
+
 class ReservaResponse(ReservaBase):
-    id: int
-    estado: str
+    id_reserva: int
+    numero_habitacion: Optional[int] = None
+    estado: Literal["Pendiente", "Confirmada", "Cancelada", "Finalizada"]
+    fecha_creacion: datetime
 
     class Config:
         from_attributes = True
