@@ -13,6 +13,7 @@ import RegistroInfoCliente from "./pages/cliente/RegistroInfoCliente.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import Habitaciones from "./pages/admin/Habitaciones.jsx";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       {/* Admin */}
       <Route path="/admin/*" element={<LayoutAdmin />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="habitaciones" element={<Habitaciones />} />
       </Route>
     </Routes>
   );

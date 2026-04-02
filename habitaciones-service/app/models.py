@@ -1,15 +1,17 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, Enum, TIMESTAMP, func
+from sqlalchemy import Column, Integer, String, DECIMAL, Enum, TIMESTAMP, func, JSON
 from .database import Base
 
 class Habitacion(Base):
     __tablename__ = "habitaciones"
 
     numero_habitacion = Column(Integer, primary_key=True, index=True)
+    tipo_habitacion = Column(Enum('Individual', 'Doble', 'Familiar', 'Suite', name='tipo_habitacion_enum'), nullable=False)
     descripcion = Column(String(255))
     ocupacion = Column(Integer, nullable=False)
-    tipo_camas = Column(Enum('SENCILLA', 'SEMIDOBLE', 'DOBLE', 'QUEEN', 'KING', name='tipo_camas_enum'), nullable=False)
+    numero_camas = Column(Integer, nullable=False)
     precio_base = Column(DECIMAL(10,2), nullable=False)
-    estado = Column(Enum('LIBRE', 'OCUPADA', 'MANTENIMIENTO', name='estado_enum'), nullable=False, default='LIBRE')
+    estado = Column(Enum('Libre', 'Ocupada', 'Limpieza', 'Mantenimiento', name='estado_enum'), nullable=False, default='Libre')
+    comodidades = Column(JSON, nullable=True)  # Array de comodidades
 
 
 class OcupacionHabitacion(Base):

@@ -5,7 +5,7 @@ from .. import crud, schemas
 import urllib.request
 import urllib.error
 
-router = APIRouter(prefix="/habitaciones", tags=["Habitaciones"])
+router = APIRouter(prefix="/api/habitaciones", tags=["Habitaciones"])
 
 
 @router.get("/", response_model=list[schemas.Habitacion])

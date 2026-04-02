@@ -8,11 +8,13 @@ from datetime import datetime
 # -----------------------------
 class HabitacionBase(BaseModel):
     numero_habitacion: int
+    tipo_habitacion: Literal["Individual", "Doble", "Familiar", "Suite"]
     descripcion: Optional[str] = None
     ocupacion: int
-    tipo_camas: Literal["SENCILLA", "SEMIDOBLE", "DOBLE", "QUEEN", "KING"]
+    numero_camas: int
     precio_base: float
-    estado: Literal["LIBRE", "OCUPADA", "MANTENIMIENTO"]
+    estado: Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]
+    comodidades: Optional[list[str]] = None
 
     # Validación: Precio positivo
     @field_validator("precio_base")
@@ -28,17 +30,26 @@ class HabitacionBase(BaseModel):
             raise ValueError("La ocupación debe ser mayor a 0")
         return v
 
+    # Validación: Número de camas positivo
+    @field_validator("numero_camas")
+    def camas_positivas(cls, v):
+        if v <= 0:
+            raise ValueError("El número de camas debe ser mayor a 0")
+        return v
+
 
 # -----------------------------
 # Crear habitación
 # -----------------------------
 class HabitacionCreate(BaseModel):
     numero_habitacion: int
+    tipo_habitacion: Literal["Individual", "Doble", "Familiar", "Suite"]
     descripcion: Optional[str] = None
     ocupacion: int
-    tipo_camas: Literal["SENCILLA", "SEMIDOBLE", "DOBLE", "QUEEN", "KING"]
+    numero_camas: int
     precio_base: float
-    estado: Optional[Literal["LIBRE", "OCUPADA", "MANTENIMIENTO"]] = "LIBRE"
+    estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = "Libre"
+    comodidades: Optional[list[str]] = None
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):
@@ -52,16 +63,24 @@ class HabitacionCreate(BaseModel):
             raise ValueError("La ocupación debe ser mayor a 0")
         return v
 
+    @field_validator("numero_camas")
+    def camas_positivas(cls, v):
+        if v <= 0:
+            raise ValueError("El número de camas debe ser mayor a 0")
+        return v
+
 
 # -----------------------------
 # Actualizar habitación
 # -----------------------------
 class HabitacionUpdate(BaseModel):
+    tipo_habitacion: Optional[Literal["Individual", "Doble", "Familiar", "Suite"]] = None
     descripcion: Optional[str] = None
     ocupacion: Optional[int] = None
-    tipo_camas: Optional[Literal["SENCILLA", "SEMIDOBLE", "DOBLE", "QUEEN", "KING"]] = None
+    numero_camas: Optional[int] = None
     precio_base: Optional[float] = None
-    estado: Optional[Literal["LIBRE", "OCUPADA", "MANTENIMIENTO"]] = None
+    estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = None
+    comodidades: Optional[list[str]] = None
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):
@@ -73,6 +92,12 @@ class HabitacionUpdate(BaseModel):
     def ocupacion_positiva(cls, v):
         if v is not None and v <= 0:
             raise ValueError("La ocupación debe ser mayor a 0")
+        return v
+
+    @field_validator("numero_camas")
+    def camas_positivas(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El número de camas debe ser mayor a 0")
         return v
 
 
