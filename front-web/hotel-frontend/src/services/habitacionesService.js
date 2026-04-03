@@ -1,7 +1,7 @@
 // src/services/habitacionesService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8082/docs"; // Cambia según tu backend
+const API_URL = "http://localhost:8082/api/habitaciones"; // Cambia según tu backend
 
 export const getHabitaciones = async () => {
   const response = await axios.get(API_URL);

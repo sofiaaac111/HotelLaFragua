@@ -6,12 +6,25 @@ from ..security import verify_token
 import urllib.request
 import urllib.error
 
-router = APIRouter(prefix="/habitaciones", tags=["Habitaciones"])
+router = APIRouter(prefix="/api/habitaciones", tags=["Habitaciones"])
+
+
+@router.get("", response_model=list[schemas.Habitacion])
+def listar_habitaciones_sin_slash(db: Session = Depends(get_db)):
+    return crud.get_habitaciones(db)
 
 
 @router.get("/", response_model=list[schemas.Habitacion])
 def listar_habitaciones(db: Session = Depends(get_db), current_user = Depends(verify_token)):
     return crud.get_habitaciones(db)
+
+
+@router.post("", response_model=schemas.Habitacion)
+def crear_habitacion_sin_slash(habitacion: schemas.HabitacionCreate, db: Session = Depends(get_db)):
+    nueva_habitacion = crud.create_habitacion(db, habitacion)
+    if not nueva_habitacion:
+        raise HTTPException(status_code=400, detail="Habitación con este número ya existe")
+    return nueva_habitacion
 
 
 @router.post("/", response_model=schemas.Habitacion)

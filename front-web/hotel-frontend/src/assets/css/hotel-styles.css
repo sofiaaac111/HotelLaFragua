@@ -1,0 +1,571 @@
+/* Hotel La Fragua - Modern Style */
+:root {
+  --hotel-primary: #a67c52;
+  --hotel-secondary: #8b6344;
+  --hotel-accent: #f4e4bc;
+  --hotel-dark: #2d3748;
+  --hotel-light: #ffffff;
+  --hotel-gray-light: #f7fafc;
+  --hotel-gray-medium: #e2e8f0;
+  --hotel-gray-dark: #718096;
+  --hotel-success: #48bb78;
+  --hotel-danger: #f56565;
+  --hotel-warning: #ed8936;
+  --hotel-info: #4299e1;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  color: #2c3e50;
+  min-height: 100vh;
+}
+
+/* Navbar Styles */
+.navbar {
+  background: #a67c52 !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.navbar .logo,
+.navbar .nav-links li {
+  color: white !important;
+}
+
+.navbar .nav-links li:hover {
+  color: var(--hotel-light) !important;
+  cursor: pointer;
+}
+
+.btn-outline {
+  background: transparent !important;
+  border: 2px solid white !important;
+  color: white !important;
+  padding: 8px 20px !important;
+  border-radius: 25px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-outline:hover {
+  background: white !important;
+  color: var(--hotel-primary) !important;
+  transform: translateY(-2px);
+}
+
+/* Card Enhancements */
+.card {
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: #ffffff !important;
+  color: #2c3e50 !important;
+  border: 1px solid rgba(166, 124, 82, 0.1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #a67c52;
+  border-radius: 20px 20px 0 0;
+}
+
+.card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 40px rgba(166, 124, 82, 0.2) !important;
+  border-color: rgba(166, 124, 82, 0.3) !important;
+}
+
+.card-header {
+  background: #a67c52 !important;
+  color: var(--hotel-light) !important;
+  border-radius: 20px 20px 0 0 !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 20px 24px !important;
+  position: relative;
+  letter-spacing: 0.5px !important;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: #a67c52 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 14px 28px !important;
+  font-weight: 700 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: var(--hotel-light) !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(166, 124, 82, 0.4) !important;
+  background: #8b6344 !important;
+}
+
+.btn-lg {
+  padding: 12px 30px !important;
+  font-size: 1.1rem !important;
+}
+
+/* Table Styles */
+.table {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(166, 124, 82, 0.1) !important;
+}
+
+.table thead th {
+  background: #a67c52 !important;
+  color: var(--hotel-light) !important;
+  border: none !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.1em !important;
+  padding: 20px 16px !important;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
+.table tbody tr:hover {
+  background: rgba(166, 124, 82, 0.05) !important;
+  transform: scale(1.01) !important;
+  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.1) !important;
+}
+
+/* Badge Styles */
+.badge {
+  padding: 8px 12px !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border: 2px solid #a67c52 !important;
+  background: #ffffff !important;
+  color: #a67c52 !important;
+  transition: all 0.3s ease !important;
+}
+
+.badge.bg-success {
+  border-color: #a67c52 !important;
+  color: #a67c52 !important;
+}
+
+.badge.bg-danger {
+  border-color: #8b6344 !important;
+  color: #8b6344 !important;
+}
+
+.badge.bg-warning {
+  border-color: #a67c52 !important;
+  color: #a67c52 !important;
+}
+
+.badge.bg-info {
+  border-color: #8b6344 !important;
+  color: #8b6344 !important;
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
+  background: #ffffff !important;
+  color: #2c3e50 !important;
+  border: 1px solid rgba(166, 124, 82, 0.1) !important;
+}
+
+.modal-header {
+  background: #a67c52 !important;
+  color: var(--hotel-light) !important;
+  border-radius: 24px 24px 0 0 !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 24px 28px !important;
+  letter-spacing: 0.5px !important;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Form Styles */
+.form-control,
+.form-select {
+  border: 2px solid #e1e8ed !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease !important;
+  background: #ffffff !important;
+  color: #2c3e50 !important;
+  font-size: 0.95rem !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #a67c52 !important;
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1) !important;
+  background: #ffffff !important;
+  outline: none !important;
+}
+
+.form-label {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 8px !important;
+  font-size: 0.9rem !important;
+}
+
+/* Statistics Cards */
+.card.bg-success,
+.card.bg-danger,
+.card.bg-warning,
+.card.bg-secondary,
+.card.bg-info {
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.card.bg-gradient-success {
+  background: #ffffff !important;
+  border: 2px solid #a67c52 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #2c3e50 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.bg-gradient-success::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #a67c52;
+  border-radius: 20px 20px 0 0;
+}
+
+.card.bg-gradient-danger {
+  background: #ffffff !important;
+  border: 2px solid #8b6344 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #2c3e50 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.bg-gradient-danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #8b6344;
+  border-radius: 20px 20px 0 0;
+}
+
+.card.bg-gradient-info {
+  background: #ffffff !important;
+  border: 2px solid #a67c52 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #2c3e50 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.bg-gradient-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #a67c52;
+  border-radius: 20px 20px 0 0;
+}
+
+.card.bg-gradient-warning {
+  background: #ffffff !important;
+  border: 2px solid #8b6344 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #2c3e50 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.bg-gradient-warning::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #8b6344;
+  border-radius: 20px 20px 0 0;
+}
+
+.card.bg-gradient-success:hover,
+.card.bg-gradient-danger:hover,
+.card.bg-gradient-info:hover,
+.card.bg-gradient-warning:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+
+.card.bg-success:hover,
+.card.bg-danger:hover,
+.card.bg-warning:hover,
+.card.bg-secondary:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+
+/* Button Group */
+.btn-group .btn {
+  border-radius: 10px !important;
+  margin: 0 2px !important;
+  transition: all 0.3s ease !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.3px !important;
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-outline-primary {
+  border: 2px solid #a67c52 !important;
+  color: #a67c52 !important;
+  background: #ffffff !important;
+}
+
+.btn-outline-primary:hover {
+  background: #a67c52 !important;
+  color: #ffffff !important;
+  border-color: #a67c52 !important;
+}
+
+.btn-outline-danger {
+  border: 2px solid #8b6344 !important;
+  color: #8b6344 !important;
+  background: #ffffff !important;
+}
+
+.btn-outline-danger:hover {
+  background: #8b6344 !important;
+  color: #ffffff !important;
+  border-color: #8b6344 !important;
+}
+
+/* Empty State */
+.display-1 {
+  font-size: 4rem !important;
+  color: var(--hotel-primary) !important;
+  opacity: 0.3 !important;
+}
+
+/* Comodidades Styles */
+.comodidad-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  min-height: 85px;
+  color: #2c3e50;
+}
+
+.comodidad-item:hover {
+  border-color: #a67c52;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.15);
+  background: #f8f9fa;
+}
+
+.comodidad-item.selected {
+  border-color: #a67c52;
+  background: rgba(166, 124, 82, 0.1);
+  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+}
+
+.comodidad-icon {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+  transition: transform 0.3s ease;
+}
+
+.comodidad-item:hover .comodidad-icon {
+  transform: scale(1.1);
+}
+
+.comodidad-item.selected .comodidad-icon {
+  transform: scale(1.15);
+}
+
+.comodidad-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Client View Styles */
+.habitaciones-view-cliente {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.habitacion-card {
+  transition: all 0.3s ease;
+  border-radius: 20px !important;
+}
+
+.habitacion-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(166, 124, 82, 0.2) !important;
+}
+
+.habitacion-imagen {
+  height: 250px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.habitacion-card:hover .habitacion-imagen {
+  transform: scale(1.05);
+}
+
+.habitacion-imagen-placeholder {
+  height: 250px;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+}
+
+.comodidad-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.comodidad-chip:hover {
+  background: #e9ecef;
+  border-color: #a67c52;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem !important;
+  }
+  
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .table-responsive {
+    font-size: 0.9rem !important;
+  }
+  
+  .btn-group .btn {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .habitaciones-view-cliente .hero-section h1 {
+    font-size: 2rem;
+  }
+  
+  .habitacion-card {
+    margin-bottom: 2rem;
+  }
+  
+  .habitacion-imagen,
+  .habitacion-imagen-placeholder {
+    height: 200px;
+  }
+  
+  .btn-lg {
+    padding: 10px 20px !important;
+    font-size: 1rem !important;
+  }
+  
+  .comodidad-item {
+    padding: 10px 8px;
+    min-height: 70px;
+  }
+  
+  .comodidad-icon {
+    font-size: 1.5rem;
+  }
+  
+  .comodidad-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s infinite;
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
