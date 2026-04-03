@@ -14,11 +14,8 @@ class HabitacionBase(BaseModel):
     numero_camas: int
     precio_base: float
     estado: Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]
-<<<<<<< HEAD
-=======
     comodidades: Optional[list[str]] = None
     foto: Optional[str] = None
->>>>>>> origin/frontend
 
     # Validación: Precio positivo
     @field_validator("precio_base")
@@ -34,10 +31,7 @@ class HabitacionBase(BaseModel):
             raise ValueError("La ocupación debe ser mayor a 0")
         return v
 
-<<<<<<< HEAD
-=======
     # Validación: Número de camas positivo
->>>>>>> origin/frontend
     @field_validator("numero_camas")
     def camas_positivas(cls, v):
         if v <= 0:
@@ -56,11 +50,8 @@ class HabitacionCreate(BaseModel):
     numero_camas: int
     precio_base: float
     estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = "Libre"
-<<<<<<< HEAD
-=======
     comodidades: Optional[list[str]] = None
     foto: Optional[str] = None
->>>>>>> origin/frontend
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):
@@ -89,16 +80,10 @@ class HabitacionUpdate(BaseModel):
     descripcion: Optional[str] = None
     ocupacion: Optional[int] = None
     numero_camas: Optional[int] = None
-<<<<<<< HEAD
-    tipo_habitacion: Optional[Literal["Individual", "Doble", "Familiar", "Suite"]] = None
-    precio_base: Optional[float] = None
-    estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = None
-=======
     precio_base: Optional[float] = None
     estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = None
     comodidades: Optional[list[str]] = None
     foto: Optional[str] = None
->>>>>>> origin/frontend
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):

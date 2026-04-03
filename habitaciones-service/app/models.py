@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from sqlalchemy import Column, Integer, String, DECIMAL, Enum, DateTime, func, ForeignKey
-=======
-from sqlalchemy import Column, Integer, String, DECIMAL, Enum, TIMESTAMP, func, JSON
->>>>>>> origin/frontend
+from sqlalchemy import Column, Integer, String, DECIMAL, Enum, DateTime, func, ForeignKey, JSON
 from .database import Base
 
 class Habitacion(Base):
@@ -10,21 +6,13 @@ class Habitacion(Base):
 
     numero_habitacion = Column(Integer, primary_key=True, index=True)
     tipo_habitacion = Column(Enum('Individual', 'Doble', 'Familiar', 'Suite', name='tipo_habitacion_enum'), nullable=False)
-<<<<<<< HEAD
     descripcion = Column(String(255), nullable=True)
-    ocupacion = Column(Integer, nullable=False)
-    numero_camas = Column(Integer, nullable=False)
-    precio_base = Column(DECIMAL(10,0), nullable=False)
-    estado = Column(Enum('Libre', 'Ocupada', 'Limpieza', 'Mantenimiento', name='estado_enum'), nullable=False, default='Libre')
-=======
-    descripcion = Column(String(255))
     ocupacion = Column(Integer, nullable=False)
     numero_camas = Column(Integer, nullable=False)
     precio_base = Column(DECIMAL(10,2), nullable=False)
     estado = Column(Enum('Libre', 'Ocupada', 'Limpieza', 'Mantenimiento', name='estado_enum'), nullable=False, default='Libre')
-    comodidades = Column(JSON, nullable=True)  # Array de comodidades
-    foto = Column(String(500), nullable=True)  # URL o base64 de la foto
->>>>>>> origin/frontend
+    comodidades = Column(JSON, nullable=True)
+    foto = Column(String(500), nullable=True)
 
 
 class OcupacionHabitacion(Base):
