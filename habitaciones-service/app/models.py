@@ -6,7 +6,7 @@ class Habitacion(Base):
 
     numero_habitacion = Column(Integer, primary_key=True, index=True)
     tipo_habitacion = Column(Enum('Individual', 'Doble', 'Familiar', 'Suite', name='tipo_habitacion_enum'), nullable=False)
-    descripcion = Column(String(255), nullable=True)
+    descripcion = Column(Text, nullable=True)
     ocupacion = Column(Integer, nullable=False)
     numero_camas = Column(Integer, nullable=False)
     precio_base = Column(DECIMAL(10,2), nullable=False)
