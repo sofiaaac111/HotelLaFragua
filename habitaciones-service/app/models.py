@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, Enum, DateTime, func, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, DECIMAL, Enum, DateTime, func, ForeignKey, JSON, Text
 from .database import Base
 
 class Habitacion(Base):
@@ -12,7 +12,7 @@ class Habitacion(Base):
     precio_base = Column(DECIMAL(10,2), nullable=False)
     estado = Column(Enum('Libre', 'Ocupada', 'Limpieza', 'Mantenimiento', name='estado_enum'), nullable=False, default='Libre')
     comodidades = Column(JSON, nullable=True)
-    foto = Column(String(500), nullable=True)
+    foto = Column(Text, nullable=True)
 
 
 class OcupacionHabitacion(Base):
