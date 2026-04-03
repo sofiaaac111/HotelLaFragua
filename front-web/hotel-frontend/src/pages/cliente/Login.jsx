@@ -13,7 +13,7 @@ function Login() {
     try {
       const response = await axios.post("http://localhost:8086/auth/login", {
         correo,
-        password
+        contraseña: password
       });
 
       const token = response.data.access_token;

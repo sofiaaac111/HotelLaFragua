@@ -1,16 +1,18 @@
 // src/pages/admin/Habitaciones.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getHabitaciones,
   crearHabitacion,
   actualizarHabitacion,
   eliminarHabitacion,
-} from "../../services/habitacionesService";
+} from "../../services/habitacionesApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../assets/css/hotel-styles.css";
 
 function Habitaciones() {
+  const navigate = useNavigate();
   const [habitaciones, setHabitaciones] = useState([]);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -26,6 +28,16 @@ function Habitaciones() {
     foto: "",
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Debes iniciar sesión para acceder a esta página");
+      navigate("/login");
+      return;
+    }
+    cargarHabitaciones();
+  }, []);
+
   const cargarHabitaciones = async () => {
     try {
       const data = await getHabitaciones();
@@ -34,10 +46,6 @@ function Habitaciones() {
       console.error("Error cargando habitaciones:", error);
     }
   };
-
-  useEffect(() => {
-    cargarHabitaciones();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,9 +62,9 @@ function Habitaciones() {
   const handleFotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar tamaño del archivo (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo es demasiado grande. Máximo 5MB.');
+      // Validar tamaño del archivo (máximo 20MB)
+      if (file.size > 20 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 20MB.');
         e.target.value = '';
         return;
       }
@@ -492,7 +500,7 @@ function Habitaciones() {
                         onChange={handleFotoChange}
                         id="fotoInput"
                       />
-                      <small className="text-muted">Formatos aceptados: JPG, PNG, GIF. Máximo 5MB</small>
+                      <small className="text-muted">Formatos aceptados: JPG, PNG, GIF. Máximo 20MB</small>
                     </div>
                   </div>
                   
