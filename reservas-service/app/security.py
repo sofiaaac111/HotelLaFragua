@@ -23,14 +23,17 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        user_identity = payload.get("sub") or payload.get("nombre_usuario") or payload.get("correo")
+        if user_identity is None and payload.get("id_usuario") is not None:
+            user_identity = str(payload.get("id_usuario"))
+
+        if user_identity is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token inválido",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return username
+        return user_identity
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
