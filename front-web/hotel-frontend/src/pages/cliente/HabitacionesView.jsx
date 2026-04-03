@@ -38,6 +38,16 @@ function HabitacionesView() {
     console.log("Aplicando filtros:", filtro);
   };
 
+  const handleLimpiarFiltros = () => {
+    setFiltro({
+      tipo: "",
+      personas: "",
+      precioMin: "",
+      precioMax: ""
+    });
+    console.log("Filtros limpiados");
+  };
+
   const habitacionesFiltradas = habitaciones.filter(habitacion => {
     return (
       (!filtro.tipo || habitacion.tipo_habitacion === filtro.tipo) &&
@@ -289,11 +299,33 @@ function HabitacionesView() {
                 <div className="row mt-3">
                   <div className="col-12 text-center">
                     <button 
-                      className="btn btn-primary btn-lg px-5"
+                      className="btn btn-primary btn-lg px-5 me-2"
                       onClick={handleBuscar}
                     >
                       <i className="bi bi-search me-2"></i>
                       Buscar Habitaciones
+                    </button>
+                    <button 
+                      className="btn btn-outline-secondary btn-lg px-4"
+                      onClick={handleLimpiarFiltros}
+                      style={{
+                        borderColor: '#A67C52',
+                        color: '#A67C52',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#A67C52';
+                        e.target.style.color = 'white';
+                        e.target.style.borderColor = '#A67C52';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                        e.target.style.color = '#A67C52';
+                        e.target.style.borderColor = '#A67C52';
+                      }}
+                    >
+                      <i className="bi bi-x-circle me-2"></i>
+                      Limpiar Filtros
                     </button>
                   </div>
                 </div>
@@ -363,6 +395,21 @@ function HabitacionesView() {
                       <button 
                         className="btn btn-outline-secondary flex-fill"
                         onClick={() => setHabitacionSeleccionada(item.habitacion)}
+                        style={{
+                          borderColor: '#A67C52',
+                          color: '#A67C52',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#A67C52';
+                          e.target.style.color = 'white';
+                          e.target.style.borderColor = '#A67C52';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = 'transparent';
+                          e.target.style.color = '#A67C52';
+                          e.target.style.borderColor = '#A67C52';
+                        }}
                       >
                         <i className="bi bi-eye me-2"></i>
                         Ver Detalles
@@ -409,6 +456,21 @@ function HabitacionesView() {
                       <button 
                         className="btn btn-outline-secondary flex-fill"
                         onClick={() => setHabitacionSeleccionada(item.habitacion)}
+                        style={{
+                          borderColor: '#A67C52',
+                          color: '#A67C52',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#A67C52';
+                          e.target.style.color = 'white';
+                          e.target.style.borderColor = '#A67C52';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = 'transparent';
+                          e.target.style.color = '#A67C52';
+                          e.target.style.borderColor = '#A67C52';
+                        }}
                       >
                         <i className="bi bi-eye me-2"></i>
                         Ver Detalles
