@@ -23,6 +23,7 @@ function Habitaciones() {
     precio_base: "",
     estado: "Libre",
     comodidades: [],
+    foto: "",
   });
 
   const cargarHabitaciones = async () => {
@@ -47,6 +48,32 @@ function Habitaciones() {
       setForm({ ...form, [name]: cleanValue });
     } else {
       setForm({ ...form, [name]: value });
+    }
+  };
+
+  const handleFotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar tamaño del archivo (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 5MB.');
+        e.target.value = '';
+        return;
+      }
+      
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen.');
+        e.target.value = '';
+        return;
+      }
+      
+      // Crear URL para previsualización
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm({ ...form, foto: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -111,6 +138,7 @@ function Habitaciones() {
       precio_base: "",
       estado: "Libre",
       comodidades: [],
+      foto: "",
     });
   };
 
@@ -125,6 +153,7 @@ function Habitaciones() {
       precio_base: habitacion.precio_base.toString(),
       estado: habitacion.estado,
       comodidades: habitacion.comodidades || [],
+      foto: habitacion.foto || "",
     });
     setShowForm(true);
   };
@@ -143,11 +172,21 @@ function Habitaciones() {
   const getEstadoBadge = (estado) => {
     const estados = {
       Libre: "success",
-      Ocupada: "danger",
-      Limpieza: "warning",
-      Mantenimiento: "secondary",
+      Ocupada: "danger", 
+      Limpieza: "info",
+      Mantenimiento: "warning",
     };
-    return estados[estado] || "primary";
+    return estados[estado] || "secondary";
+  };
+
+  const getEstadoIcon = (estado) => {
+    const iconos = {
+      Libre: "✅",
+      Ocupada: "🔴",
+      Limpieza: "🧹", 
+      Mantenimiento: "🔧",
+    };
+    return iconos[estado] || "❓";
   };
 
   const getTipoIcon = (tipo) => {
@@ -234,42 +273,78 @@ function Habitaciones() {
       {/* Estadísticas */}
       <div className="row mb-4">
         <div className="col-md-3">
-          <div className="card bg-success text-white">
+          <div className="card bg-gradient-success text-white shadow-sm">
             <div className="card-body">
-              <h5 className="card-title">Libres</h5>
-              <h3 className="card-text">
-                {habitaciones.filter(h => h.estado === "Libre").length}
-              </h3>
+              <div className="d-flex align-items-center">
+                <div className="flex-grow-1">
+                  <h6 className="card-title mb-1 opacity-75">Habitaciones Libres</h6>
+                  <h2 className="card-text mb-0">
+                    {habitaciones.filter(h => h.estado === "Libre").length}
+                  </h2>
+                </div>
+                <div className="ms-3">
+                  <div className="rounded-circle bg-white bg-opacity-25 p-3">
+                    <i className="bi bi-check-circle fs-4"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card bg-danger text-white">
+          <div className="card bg-gradient-danger text-white shadow-sm">
             <div className="card-body">
-              <h5 className="card-title">Ocupadas</h5>
-              <h3 className="card-text">
-                {habitaciones.filter(h => h.estado === "Ocupada").length}
-              </h3>
+              <div className="d-flex align-items-center">
+                <div className="flex-grow-1">
+                  <h6 className="card-title mb-1 opacity-75">Habitaciones Ocupadas</h6>
+                  <h2 className="card-text mb-0">
+                    {habitaciones.filter(h => h.estado === "Ocupada").length}
+                  </h2>
+                </div>
+                <div className="ms-3">
+                  <div className="rounded-circle bg-white bg-opacity-25 p-3">
+                    <i className="bi bi-person-fill fs-4"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card bg-warning text-white">
+          <div className="card bg-gradient-info text-white shadow-sm">
             <div className="card-body">
-              <h5 className="card-title">Limpieza</h5>
-              <h3 className="card-text">
-                {habitaciones.filter(h => h.estado === "Limpieza").length}
-              </h3>
+              <div className="d-flex align-items-center">
+                <div className="flex-grow-1">
+                  <h6 className="card-title mb-1 opacity-75">En Limpieza</h6>
+                  <h2 className="card-text mb-0">
+                    {habitaciones.filter(h => h.estado === "Limpieza").length}
+                  </h2>
+                </div>
+                <div className="ms-3">
+                  <div className="rounded-circle bg-white bg-opacity-25 p-3">
+                    <i className="bi bi-arrow-repeat fs-4"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card bg-secondary text-white">
+          <div className="card bg-gradient-warning text-white shadow-sm">
             <div className="card-body">
-              <h5 className="card-title">Mantenimiento</h5>
-              <h3 className="card-text">
-                {habitaciones.filter(h => h.estado === "Mantenimiento").length}
-              </h3>
+              <div className="d-flex align-items-center">
+                <div className="flex-grow-1">
+                  <h6 className="card-title mb-1 opacity-75">En Mantenimiento</h6>
+                  <h2 className="card-text mb-0">
+                    {habitaciones.filter(h => h.estado === "Mantenimiento").length}
+                  </h2>
+                </div>
+                <div className="ms-3">
+                  <div className="rounded-circle bg-white bg-opacity-25 p-3">
+                    <i className="bi bi-tools fs-4"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -391,6 +466,36 @@ function Habitaciones() {
                     />
                   </div>
                   
+                  {/* Campo de Foto */}
+                  <div className="mb-4">
+                    <label className="form-label">Foto de la Habitación</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-light">
+                      {form.foto ? (
+                        <div className="mb-3">
+                          <img 
+                            src={form.foto} 
+                            alt="Foto de la habitación" 
+                            className="img-fluid rounded"
+                            style={{ maxHeight: '200px', objectFit: 'cover' }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="mb-3">
+                          <i className="bi bi-image display-4 text-muted"></i>
+                          <p className="text-muted mt-2 mb-0">No hay foto seleccionada</p>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        className="form-control"
+                        accept="image/*"
+                        onChange={handleFotoChange}
+                        id="fotoInput"
+                      />
+                      <small className="text-muted">Formatos aceptados: JPG, PNG, GIF. Máximo 5MB</small>
+                    </div>
+                  </div>
+                  
                   {/* Comodidades */}
                   <div className="mb-4">
                     <label className="form-label">Comodidades</label>
@@ -451,6 +556,7 @@ function Habitaciones() {
               <thead className="table-light">
                 <tr>
                   <th>Número</th>
+                  <th>Foto</th>
                   <th>Tipo</th>
                   <th>Ocupación</th>
                   <th>Camas</th>
@@ -468,25 +574,45 @@ function Habitaciones() {
                       <strong>{habitacion.numero_habitacion}</strong>
                     </td>
                     <td>
+                      {habitacion.foto ? (
+                        <img 
+                          src={habitacion.foto} 
+                          alt="Foto de la habitación" 
+                          className="img-fluid rounded"
+                          style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div 
+                          className="rounded bg-light d-flex align-items-center justify-content-center"
+                          style={{ width: '60px', height: '60px' }}
+                        >
+                          <i className="bi bi-image text-muted"></i>
+                        </div>
+                      )}
+                    </td>
+                    <td>
                       <span className="me-2">{getTipoIcon(habitacion.tipo_habitacion)}</span>
                       {habitacion.tipo_habitacion}
                     </td>
                     <td>{habitacion.ocupacion} personas</td>
                     <td>{habitacion.numero_camas}</td>
                     <td>
-                      <span className="fw-bold text-success">
+                      <span className="fw-bold" style={{color: '#a67c52'}}>
                         ${parseFloat(habitacion.precio_base).toLocaleString()}
                       </span>
                     </td>
                     <td>
-                      <span className={`badge bg-${getEstadoBadge(habitacion.estado)}`}>
-                        {habitacion.estado}
-                      </span>
+                      <div className="d-flex align-items-center">
+                        <span className={`badge bg-${getEstadoBadge(habitacion.estado)} me-2 px-3 py-2`}>
+                          <span className="me-1">{getEstadoIcon(habitacion.estado)}</span>
+                          {habitacion.estado}
+                        </span>
+                      </div>
                     </td>
                     <td>
-                      <small className="text-muted">
+                      <span style={{color: '#2c3e50'}}>
                         {habitacion.descripcion || "Sin descripción"}
-                      </small>
+                      </span>
                     </td>
                     <td>
                       <div className="d-flex flex-wrap gap-1">
@@ -505,16 +631,20 @@ function Habitaciones() {
                     <td>
                       <div className="btn-group" role="group">
                         <button
-                          className="btn btn-sm btn-outline-primary"
+                          className="btn btn-sm btn-outline-primary d-flex align-items-center"
                           onClick={() => handleEditar(habitacion)}
+                          title="Modificar habitación"
                         >
-                          <i className="bi bi-pencil"></i>
+                          <i className="bi bi-pencil-square me-1"></i>
+                          Editar
                         </button>
                         <button
-                          className="btn btn-sm btn-outline-danger"
+                          className="btn btn-sm btn-outline-danger d-flex align-items-center ms-1"
                           onClick={() => handleEliminar(habitacion.numero_habitacion)}
+                          title="Eliminar habitación"
                         >
-                          <i className="bi bi-trash"></i>
+                          <i className="bi bi-trash me-1"></i>
+                          Eliminar
                         </button>
                       </div>
                     </td>

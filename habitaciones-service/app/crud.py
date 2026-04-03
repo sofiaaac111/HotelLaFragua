@@ -28,7 +28,8 @@ def create_habitacion(db: Session, habitacion: schemas.HabitacionCreate):
         numero_camas=habitacion.numero_camas,
         precio_base=habitacion.precio_base,
         estado=habitacion.estado,
-        comodidades=habitacion.comodidades
+        comodidades=habitacion.comodidades,
+        foto=habitacion.foto
     )
     db.add(db_habitacion)
     db.commit()

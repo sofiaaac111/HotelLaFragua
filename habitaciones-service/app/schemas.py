@@ -15,6 +15,7 @@ class HabitacionBase(BaseModel):
     precio_base: float
     estado: Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]
     comodidades: Optional[list[str]] = None
+    foto: Optional[str] = None
 
     # Validación: Precio positivo
     @field_validator("precio_base")
@@ -50,6 +51,7 @@ class HabitacionCreate(BaseModel):
     precio_base: float
     estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = "Libre"
     comodidades: Optional[list[str]] = None
+    foto: Optional[str] = None
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):
@@ -81,6 +83,7 @@ class HabitacionUpdate(BaseModel):
     precio_base: Optional[float] = None
     estado: Optional[Literal["Libre", "Ocupada", "Limpieza", "Mantenimiento"]] = None
     comodidades: Optional[list[str]] = None
+    foto: Optional[str] = None
 
     @field_validator("precio_base")
     def precio_no_negativo(cls, v):

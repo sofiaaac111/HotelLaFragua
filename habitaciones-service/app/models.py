@@ -12,6 +12,7 @@ class Habitacion(Base):
     precio_base = Column(DECIMAL(10,2), nullable=False)
     estado = Column(Enum('Libre', 'Ocupada', 'Limpieza', 'Mantenimiento', name='estado_enum'), nullable=False, default='Libre')
     comodidades = Column(JSON, nullable=True)  # Array de comodidades
+    foto = Column(String(500), nullable=True)  # URL o base64 de la foto
 
 
 class OcupacionHabitacion(Base):
