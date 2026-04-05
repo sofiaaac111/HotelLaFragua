@@ -9,12 +9,12 @@ import ClienteHome from "./pages/cliente/ClienteHome.jsx";
 import PerfilCliente from "./pages/cliente/PerfilCliente.jsx";
 import Login from "./pages/cliente/Login.jsx";
 import RegistroCliente from "./pages/cliente/RegistroCliente.jsx";
-import RegistroInfoCliente from "./pages/cliente/RegistroInfoCliente.jsx";
 import HabitacionesView from "./pages/cliente/HabitacionesView.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import Habitaciones from "./pages/admin/Habitaciones.jsx";
+import UsuariosView from "./pages/admin/UsuariosView.jsx";
 
 function App() {
   return (
@@ -26,13 +26,13 @@ function App() {
         <Route path="/perfil" element={<PerfilCliente />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegistroCliente />} />
-        <Route path="/registro-info" element={<RegistroInfoCliente />} />
       </Route>
 
       {/* Admin */}
       <Route path="/admin/*" element={<LayoutAdmin />}>
         <Route index element={<AdminDashboard />} />
         <Route path="habitaciones" element={<Habitaciones />} />
+        <Route path="usuarios" element={<UsuariosView />} />
       </Route>
     </Routes>
   );

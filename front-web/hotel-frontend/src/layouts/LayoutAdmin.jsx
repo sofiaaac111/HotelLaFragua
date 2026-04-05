@@ -5,7 +5,7 @@ function LayoutAdmin() {
   return (
     <>
       <NavbarAdmin />
-      <div style={{ padding: "2rem" }}>
+      <div style={{ paddingTop: "100px" }}>
         <Outlet />
       </div>
     </>
