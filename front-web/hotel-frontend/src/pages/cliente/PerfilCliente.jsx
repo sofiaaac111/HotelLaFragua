@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getClientes } from "../../services/clientesApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -38,15 +38,10 @@ function PerfilCliente() {
         return;
       }
       
-      const response = await axios.get("http://localhost:8081/clientes/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      const clientes = await getClientes();
 
       // Filtrar el cliente que corresponde al correo del usuario actual
-      const clienteActual = response.data.find(cliente => cliente.correo === usuarioCorreo);
+      const clienteActual = clientes.find(cliente => cliente.correo === usuarioCorreo);
       
       if (clienteActual) {
         setClienteData(clienteActual);

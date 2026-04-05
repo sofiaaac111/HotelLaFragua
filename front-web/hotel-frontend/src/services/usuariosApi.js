@@ -6,10 +6,8 @@ const usuariosApi = axios.create({
 
 usuariosApi.interceptors.request.use(config => {
   const token = localStorage.getItem("token");
-  console.log("Interceptor - Token from localStorage:", token ? "exists" : "MISSING");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log("Interceptor - Authorization header set");
   }
   return config;
 });
