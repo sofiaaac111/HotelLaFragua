@@ -11,7 +11,91 @@
   --hotel-success: #48bb78;
   --hotel-danger: #f56565;
   --hotel-warning: #ed8936;
-  --hotel-info: #4299e1;
+  --hotel-info: #a67c52; /* Cambiado de azul a café */
+}
+
+/* Override Bootstrap primary colors with hotel coffee theme */
+.text-primary {
+  color: #a67c52 !important;
+}
+
+.btn-primary {
+  background: #a67c52 !important;
+  border-color: #a67c52 !important;
+}
+
+.btn-primary:hover {
+  background: #8b6344 !important;
+  border-color: #8b6344 !important;
+}
+
+.text-info {
+  color: #a67c52 !important;
+}
+
+.btn-info {
+  background: #a67c52 !important;
+  border-color: #a67c52 !important;
+}
+
+.btn-info:hover {
+  background: #8b6344 !important;
+  border-color: #8b6344 !important;
+}
+
+/* Override links to use hotel colors */
+a.text-primary:hover {
+  color: #8b6344 !important;
+  text-decoration: underline !important;
+}
+
+a.text-primary {
+  color: #a67c52 !important;
+  text-decoration: none !important;
+}
+
+/* Form controls */
+.form-control:focus {
+  border-color: #a67c52 !important;
+  box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25) !important;
+}
+
+.form-select:focus {
+  border-color: #a67c52 !important;
+  box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25) !important;
+}
+
+/* Input group icons */
+.input-group-text {
+  background-color: #f8f9fa !important;
+  border-color: #e9ecef !important;
+  color: #a67c52 !important;
+}
+
+/* Spinner and loading elements */
+.spinner-border.text-primary {
+  color: #a67c52 !important;
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 12px !important;
+  border: none !important;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+  color: #155724 !important;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+  color: #721c24 !important;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%) !important;
+  color: #856404 !important;
 }
 
 body {
