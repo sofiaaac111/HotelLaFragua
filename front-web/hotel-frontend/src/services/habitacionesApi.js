@@ -5,10 +5,12 @@ const habitacionesApi = axios.create({
 });
 
 habitacionesApi.interceptors.request.use(config => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  // Las habitaciones son públicas, no requieren token
+  // Comentado para que las habitaciones sean visibles para todos
+  // const token = localStorage.getItem("token");
+  // if (token) {
+  //   config.headers.Authorization = `Bearer ${token}`;
+  // }
   return config;
 });
 

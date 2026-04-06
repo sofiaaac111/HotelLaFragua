@@ -56,14 +56,33 @@ function NavbarAdmin() {
         </li>
       </ul>
       <div className="nav-buttons">
-        <button className="btn-admin" onClick={() => navigate("/")}>
-          <i className="bi bi-house me-2"></i>
-          Ir al Sitio
-        </button>
-        <button className="btn-logout" onClick={handleLogout}>
-          <i className="bi bi-box-arrow-right me-2"></i>
-          Cerrar Sesión
-        </button>
+        {!isAuthenticated ? (
+          <>
+            <button 
+              className="btn-admin me-2" 
+              onClick={() => navigate("/admin/login")}
+              style={{ backgroundColor: "#a67c52", borderColor: "#a67c52", color: "white" }}
+            >
+              <i className="bi bi-shield-check me-2"></i>
+              Login Admin
+            </button>
+            <button className="btn-admin" onClick={() => navigate("/login")}>
+              <i className="bi bi-person me-2"></i>
+              Login Cliente
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn-admin" onClick={() => navigate("/")}>
+              <i className="bi bi-house me-2"></i>
+              Ir al Sitio
+            </button>
+            <button className="btn-logout" onClick={handleLogout}>
+              <i className="bi bi-box-arrow-right me-2"></i>
+              Cerrar Sesión
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

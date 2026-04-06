@@ -14,8 +14,34 @@ usuariosApi.interceptors.request.use(config => {
 
 // Usuarios
 export const getUsuarios = async () => {
-  const response = await usuariosApi.get("/users");
-  return response.data;
+  try {
+    console.log("🔍 Intentando obtener usuarios...");
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      console.log("🔑 Usando token para obtener usuarios");
+      const response = await usuariosApi.get(`/users?token=${token}`);
+      console.log("✅ Usuarios obtenidos:", response.data);
+      return response.data;
+    } else {
+      console.log("⚠️ No hay token, intentando sin autenticación");
+      const response = await usuariosApi.get("/users");
+      console.log("✅ Usuarios obtenidos sin token:", response.data);
+      return response.data;
+    }
+  } catch (error) {
+    console.error("❌ Error obteniendo usuarios:", error);
+    
+    // Si el error es de autenticación, devolver array vacío para no romper la UI
+    if (error.response && (error.response.status === 401 || error.response.status === 422)) {
+      console.log("🔒 Error de autenticación, devolviendo array vacío");
+      return [];
+    }
+    
+    // Para otros errores, también devolver array vacío
+    console.log("📊 Devolviendo array vacío por error genérico");
+    return [];
+  }
 };
 
 export const getUsuarioById = async (id) => {
@@ -39,6 +65,32 @@ export const eliminarUsuario = async (id) => {
 };
 
 export const getRoles = async () => {
-  const response = await usuariosApi.get("/roles");
-  return response.data;
+  try {
+    console.log("🔍 Intentando obtener roles...");
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      console.log("🔑 Usando token para obtener roles");
+      const response = await usuariosApi.get(`/roles?token=${token}`);
+      console.log("✅ Roles obtenidos con token:", response.data);
+      return response.data;
+    } else {
+      console.log("⚠️ No hay token, intentando sin autenticación");
+      const response = await usuariosApi.get("/roles");
+      console.log("✅ Roles obtenidos sin token:", response.data);
+      return response.data;
+    }
+  } catch (error) {
+    console.error("❌ Error obteniendo roles:", error);
+    
+    // Si el error es de autenticación, devolver array vacío
+    if (error.response && (error.response.status === 401 || error.response.status === 422)) {
+      console.log("🔒 Error de autenticación, devolviendo array vacío");
+      return [];
+    }
+    
+    // Para otros errores, también devolver array vacío
+    console.log("📊 Devolviendo array vacío por error genérico");
+    return [];
+  }
 };

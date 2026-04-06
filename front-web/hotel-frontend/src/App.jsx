@@ -15,6 +15,7 @@ import HabitacionesView from "./pages/cliente/HabitacionesView.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import Habitaciones from "./pages/admin/Habitaciones.jsx";
 import UsuariosView from "./pages/admin/UsuariosView.jsx";
+import LoginAdmin from "./pages/admin/LoginAdmin.jsx";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path="habitaciones" element={<Habitaciones />} />
         <Route path="usuarios" element={<UsuariosView />} />
+        <Route path="login" element={<LoginAdmin />} />
       </Route>
     </Routes>
   );
