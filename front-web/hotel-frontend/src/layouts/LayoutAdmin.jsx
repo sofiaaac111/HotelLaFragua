@@ -16,7 +16,7 @@ function LayoutAdmin() {
   return (
     <>
       <NavbarAdmin />
-      <div style={{ paddingTop: "100px" }}>
+      <div style={{ paddingTop: "60px", paddingBottom: "40px", minHeight: "100vh" }}>
         <Outlet />
       </div>
     </>
