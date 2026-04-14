@@ -46,9 +46,9 @@ function NavbarAdmin() {
           <i className="bi bi-door-closed me-1"></i>
           Habitaciones
         </li>
-        <li onClick={() => navigate("/admin/ofertas")}>
-          <i className="bi bi-tag me-1"></i>
-          Ofertas
+        <li onClick={() => navigate("/admin/reservas")}>
+          <i className="bi bi-calendar-check me-1"></i>
+          Reservas
         </li>
         <li onClick={() => navigate("/admin/reportes")}>
           <i className="bi bi-graph-up me-1"></i>

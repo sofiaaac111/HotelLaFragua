@@ -1,0 +1,156 @@
+import axios from "axios";
+
+// Configuración base para el API
+const api = axios.create({
+  baseURL: "http://localhost:8086/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Función para obtener el token
+const getToken = () => {
+  return localStorage.getItem("token");
+};
+
+// Configuración de headers con autenticación
+const getAuthHeaders = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+// Endpoints de Reservas
+export const getReservas = async () => {
+  try {
+    const response = await api.get("/reservas", {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo reservas:", error);
+    throw error;
+  }
+};
+
+export const getReservaById = async (id) => {
+  try {
+    const response = await api.get(`/reservas/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo reserva:", error);
+    throw error;
+  }
+};
+
+export const crearReserva = async (reserva) => {
+  try {
+    const response = await api.post("/reservas", reserva, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creando reserva:", error);
+    throw error;
+  }
+};
+
+export const actualizarReserva = async (id, reserva) => {
+  try {
+    const token = getToken();
+    const response = await api.put(`/reservas/${id}?token=${token}`, reserva);
+    return response.data;
+  } catch (error) {
+    console.error("Error actualizando reserva:", error);
+    throw error;
+  }
+};
+
+export const eliminarReserva = async (id) => {
+  try {
+    const token = getToken();
+    const response = await api.delete(`/reservas/${id}?token=${token}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error eliminando reserva:", error);
+    throw error;
+  }
+};
+
+export const getReservasByCliente = async (idCliente) => {
+  try {
+    const response = await api.get(`/reservas/cliente/${idCliente}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo reservas del cliente:", error);
+    throw error;
+  }
+};
+
+export const getReservasByHabitacion = async (idHabitacion) => {
+  try {
+    const response = await api.get(`/reservas/habitacion/${idHabitacion}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo reservas de la habitación:", error);
+    throw error;
+  }
+};
+
+export const getReservasByEstado = async (estado) => {
+  try {
+    const response = await api.get(`/reservas/estado/${estado}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo reservas por estado:", error);
+    throw error;
+  }
+};
+
+// Obtener habitaciones disponibles para fechas específicas
+export const getHabitacionesDisponibles = async (fechaInicio, fechaFin) => {
+  try {
+    const response = await api.get(`/reservas/disponibles`, {
+      params: { fechaInicio, fechaFin },
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo habitaciones disponibles:", error);
+    throw error;
+  }
+};
+
+// Cambiar estado de reserva
+export const cambiarEstadoReserva = async (id, nuevoEstado) => {
+  try {
+    const token = getToken();
+    const response = await api.patch(`/reservas/${id}/estado?token=${token}`, { 
+      estado: nuevoEstado 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error cambiando estado de reserva:", error);
+    throw error;
+  }
+};
+
+// Obtener estadísticas de reservas
+export const getEstadisticasReservas = async () => {
+  try {
+    const response = await api.get("/reservas/estadisticas", {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo estadísticas de reservas:", error);
+    throw error;
+  }
+};
