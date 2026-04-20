@@ -6,7 +6,7 @@ function LayoutAdmin() {
   const token = localStorage.getItem("token");
   
   // Rutas que requieren autenticación
-  const protectedRoutes = ["/admin/usuarios", "/admin/habitaciones", "/admin/ofertas", "/admin/reportes"];
+  const protectedRoutes = ["/admin/usuarios", "/admin/habitaciones", "/admin/reservas", "/admin/ofertas", "/admin/reportes"];
   
   // Si no hay token y se intenta acceder a una ruta protegida, redirigir al login de admin
   if (!token && protectedRoutes.includes(location.pathname)) {

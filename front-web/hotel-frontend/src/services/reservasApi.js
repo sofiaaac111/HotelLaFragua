@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Configuración base para el API
 const api = axios.create({
-  baseURL: "http://localhost:8086/api",
+  baseURL: "http://localhost:8083",
   headers: {
     "Content-Type": "application/json",
   },
@@ -58,8 +58,9 @@ export const crearReserva = async (reserva) => {
 
 export const actualizarReserva = async (id, reserva) => {
   try {
-    const token = getToken();
-    const response = await api.put(`/reservas/${id}?token=${token}`, reserva);
+    const response = await api.put(`/reservas/${id}`, reserva, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error("Error actualizando reserva:", error);
@@ -69,8 +70,9 @@ export const actualizarReserva = async (id, reserva) => {
 
 export const eliminarReserva = async (id) => {
   try {
-    const token = getToken();
-    const response = await api.delete(`/reservas/${id}?token=${token}`);
+    const response = await api.delete(`/reservas/${id}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error("Error eliminando reserva:", error);
@@ -131,9 +133,10 @@ export const getHabitacionesDisponibles = async (fechaInicio, fechaFin) => {
 // Cambiar estado de reserva
 export const cambiarEstadoReserva = async (id, nuevoEstado) => {
   try {
-    const token = getToken();
-    const response = await api.patch(`/reservas/${id}/estado?token=${token}`, { 
+    const response = await api.patch(`/reservas/${id}/estado`, { 
       estado: nuevoEstado 
+    }, {
+      headers: getAuthHeaders(),
     });
     return response.data;
   } catch (error) {
@@ -151,6 +154,32 @@ export const getEstadisticasReservas = async () => {
     return response.data;
   } catch (error) {
     console.error("Error obteniendo estadísticas de reservas:", error);
+    throw error;
+  }
+};
+
+// Realizar check-in de reserva
+export const checkInReserva = async (id) => {
+  try {
+    const response = await api.post(`/reservas/${id}/checkin`, {}, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error realizando check-in:", error);
+    throw error;
+  }
+};
+
+// Realizar check-out de reserva
+export const checkOutReserva = async (id) => {
+  try {
+    const response = await api.post(`/reservas/${id}/checkout`, {}, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error realizando check-out:", error);
     throw error;
   }
 };

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   getReservas,
+  crearReserva,
+  actualizarReserva,
   eliminarReserva,
   cambiarEstadoReserva,
-  getEstadisticasReservas
+  getEstadisticasReservas,
+  checkInReserva,
+  checkOutReserva
 } from "../../services/reservasApi";
 
 function ReservasView() {
@@ -16,15 +20,10 @@ function ReservasView() {
   const [estadisticas, setEstadisticas] = useState(null);
 
   const [formDataReserva, setFormDataReserva] = useState({
-    id_cliente: "",
-    id_habitacion: "",
+    identificacion_cliente: "",
+    tipo_habitacion: "Individual",
     fecha_inicio: "",
-    fecha_fin: "",
-    estado: "pendiente",
-    numero_personas: 1,
-    total_pago: 0,
-    metodo_pago: "tarjeta",
-    observaciones: ""
+    fecha_fin: ""
   });
 
   useEffect(() => {
@@ -37,6 +36,14 @@ function ReservasView() {
         getReservas(),
         getEstadisticasReservas()
       ]);
+      
+      // Debug: Ver qué campos devuelve el API
+      console.log("Reservas del API:", reservasData);
+      if (reservasData.length > 0) {
+        console.log("Primera reserva:", reservasData[0]);
+        console.log("Campos disponibles:", Object.keys(reservasData[0]));
+      }
+      
       setReservas(reservasData);
       setFilteredReservas(reservasData);
       setEstadisticas(estadisticasData);
@@ -97,17 +104,34 @@ function ReservasView() {
     }
   };
 
+  const handleCheckIn = async (id) => {
+    try {
+      await checkInReserva(id);
+      await cargarDatos();
+      alert("Check-in realizado correctamente");
+    } catch (error) {
+      console.error("Error en check-in:", error);
+      alert("Error al realizar check-in: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleCheckOut = async (id) => {
+    try {
+      await checkOutReserva(id);
+      await cargarDatos();
+      alert("Check-out realizado correctamente");
+    } catch (error) {
+      console.error("Error en check-out:", error);
+      alert("Error al realizar check-out: " + (error.response?.data?.message || error.message));
+    }
+  };
+
   const resetForm = () => {
     setFormDataReserva({
-      id_cliente: "",
-      id_habitacion: "",
+      identificacion_cliente: "",
+      tipo_habitacion: "Individual",
       fecha_inicio: "",
-      fecha_fin: "",
-      estado: "pendiente",
-      numero_personas: 1,
-      total_pago: 0,
-      metodo_pago: "tarjeta",
-      observaciones: ""
+      fecha_fin: ""
     });
     setEditingReserva(null);
   };
@@ -120,15 +144,10 @@ function ReservasView() {
   const handleEditReserva = (reserva) => {
     setEditingReserva(reserva);
     setFormDataReserva({
-      id_cliente: reserva.id_cliente,
-      id_habitacion: reserva.id_habitacion,
+      identificacion_cliente: reserva.identificacion_cliente,
+      tipo_habitacion: reserva.tipo_habitacion,
       fecha_inicio: reserva.fecha_inicio,
-      fecha_fin: reserva.fecha_fin,
-      estado: reserva.estado,
-      numero_personas: reserva.numero_personas,
-      total_pago: reserva.total_pago,
-      metodo_pago: reserva.metodo_pago,
-      observaciones: reserva.observaciones || ""
+      fecha_fin: reserva.fecha_fin
     });
     setShowModalReserva(true);
   };
@@ -139,9 +158,10 @@ function ReservasView() {
       const searchLower = searchReserva.toLowerCase();
       return (
         reserva.id_reserva?.toString().includes(searchLower) ||
-        reserva.nombre_cliente?.toLowerCase().includes(searchLower) ||
+        reserva.identificacion_cliente?.toString().includes(searchLower) ||
         reserva.numero_habitacion?.toString().includes(searchLower) ||
-        reserva.estado?.toLowerCase().includes(searchLower)
+        reserva.estado?.toLowerCase().includes(searchLower) ||
+        reserva.tipo_habitacion?.toLowerCase().includes(searchLower)
       );
     });
     setFilteredReservas(filtered);
@@ -149,13 +169,24 @@ function ReservasView() {
 
   const getEstadoBadge = (estado) => {
     const estados = {
-      pendiente: { bg: "bg-warning", text: "Pendiente" },
-      confirmada: { bg: "bg-success", text: "Confirmada" },
-      cancelada: { bg: "bg-danger", text: "Cancelada" },
-      completada: { bg: "bg-info", text: "Completada" }
+      Pendiente: { bg: "bg-warning", text: "Pendiente" },
+      Confirmada: { bg: "bg-success", text: "Confirmada" },
+      Cancelada: { bg: "bg-danger", text: "Cancelada" },
+      Finalizada: { bg: "bg-info", text: "Finalizada" }
     };
     const estadoInfo = estados[estado] || { bg: "bg-secondary", text: estado };
     return <span className={`badge ${estadoInfo.bg}`}>{estadoInfo.text}</span>;
+  };
+
+  const getTipoHabitacionBadge = (tipo) => {
+    const tipos = {
+      Individual: { bg: "bg-primary", text: "Individual" },
+      Doble: { bg: "bg-secondary", text: "Doble" },
+      Familiar: { bg: "bg-info", text: "Familiar" },
+      Suite: { bg: "bg-success", text: "Suite" }
+    };
+    const tipoInfo = tipos[tipo] || { bg: "bg-secondary", text: tipo };
+    return <span className={`badge ${tipoInfo.bg}`}>{tipoInfo.text}</span>;
   };
 
   if (loading) {
@@ -276,13 +307,14 @@ function ReservasView() {
             <table className="table table-hover mb-0">
               <thead className="table-light">
                 <tr>
-                  <th className="border-0">ID</th>
-                  <th className="border-0">Cliente</th>
-                  <th className="border-0">Habitación</th>
-                  <th className="border-0">Fechas</th>
-                  <th className="border-0">Personas</th>
-                  <th className="border-0">Total</th>
+                  <th className="border-0">ID Reserva</th>
+                  <th className="border-0">ID Cliente</th>
+                  <th className="border-0">Tipo Habitación</th>
+                  <th className="border-0">N° Habitación</th>
+                  <th className="border-0">Fecha Inicio</th>
+                  <th className="border-0">Fecha Fin</th>
                   <th className="border-0">Estado</th>
+                  <th className="border-0">Fecha Creación</th>
                   <th className="border-0">Acciones</th>
                 </tr>
               </thead>
@@ -294,39 +326,36 @@ function ReservasView() {
                         <span className="fw-bold">#{reserva.id_reserva}</span>
                       </td>
                       <td className="align-middle">
-                        <div>
-                          <div className="fw-semibold">{reserva.nombre_cliente}</div>
-                          <small className="text-muted">{reserva.correo_cliente}</small>
-                        </div>
+                        <span className="fw-semibold">{reserva.identificacion_cliente}</span>
                       </td>
                       <td className="align-middle">
-                        <div>
-                          <div className="fw-semibold">Habitación {reserva.numero_habitacion}</div>
-                          <small className="text-muted">{reserva.tipo_habitacion}</small>
-                        </div>
+                        {getTipoHabitacionBadge(reserva.tipo_habitacion)}
                       </td>
                       <td className="align-middle">
-                        <div>
-                          <div className="small">
-                            <i className="bi bi-calendar-event me-1"></i>
-                            {new Date(reserva.fecha_inicio).toLocaleDateString()}
-                          </div>
-                          <div className="small text-muted">
-                            <i className="bi bi-calendar-event me-1"></i>
-                            {new Date(reserva.fecha_fin).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="align-middle">
-                        <span className="badge bg-secondary">{reserva.numero_personas}</span>
-                      </td>
-                      <td className="align-middle">
-                        <span className="fw-bold text-success">
-                          ${reserva.total_pago?.toLocaleString() || '0'}
+                        <span className="fw-semibold">
+                          {reserva.numero_habitacion ? `#${reserva.numero_habitacion}` : 'Sin asignar'}
                         </span>
                       </td>
                       <td className="align-middle">
+                        <div className="small">
+                          <i className="bi bi-calendar-event me-1"></i>
+                          {new Date(reserva.fecha_inicio).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="align-middle">
+                        <div className="small">
+                          <i className="bi bi-calendar-event me-1"></i>
+                          {new Date(reserva.fecha_fin).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="align-middle">
                         {getEstadoBadge(reserva.estado)}
+                      </td>
+                      <td className="align-middle">
+                        <div className="small text-muted">
+                          <i className="bi bi-clock me-1"></i>
+                          {new Date(reserva.fecha_creacion).toLocaleDateString()}
+                        </div>
                       </td>
                       <td className="align-middle">
                         <div className="btn-group">
@@ -338,30 +367,40 @@ function ReservasView() {
                             <i className="bi bi-pencil"></i>
                           </button>
                           
-                          {reserva.estado === 'pendiente' && (
+                          {reserva.estado === 'Pendiente' && (
                             <button
                               className="btn btn-sm btn-outline-success"
-                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'confirmada')}
+                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'Confirmada')}
                               title="Confirmar reserva"
                             >
                               <i className="bi bi-check-lg"></i>
                             </button>
                           )}
                           
-                          {reserva.estado === 'confirmada' && (
+                          {reserva.estado === 'Pendiente' && (
                             <button
                               className="btn btn-sm btn-outline-info"
-                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'completada')}
-                              title="Completar reserva"
+                              onClick={() => handleCheckIn(reserva.id_reserva)}
+                              title="Realizar Check-in"
                             >
-                              <i className="bi bi-check-circle"></i>
+                              <i className="bi bi-box-arrow-in-right"></i>
                             </button>
                           )}
                           
-                          {reserva.estado !== 'cancelada' && (
+                          {reserva.estado === 'Confirmada' && (
                             <button
                               className="btn btn-sm btn-outline-warning"
-                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'cancelada')}
+                              onClick={() => handleCheckOut(reserva.id_reserva)}
+                              title="Realizar Check-out"
+                            >
+                              <i className="bi bi-box-arrow-right"></i>
+                            </button>
+                          )}
+                          
+                          {reserva.estado !== 'Cancelada' && reserva.estado !== 'Finalizada' && (
+                            <button
+                              className="btn btn-sm btn-outline-warning"
+                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'Cancelada')}
                               title="Cancelar reserva"
                             >
                               <i className="bi bi-x-lg"></i>
@@ -381,7 +420,7 @@ function ReservasView() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="text-center py-5">
+                    <td colSpan="9" className="text-center py-5">
                       <div className="text-muted">
                         <i className="bi bi-calendar-x fs-1 mb-3 d-block"></i>
                         <h5>No se encontraron reservas</h5>
@@ -411,28 +450,31 @@ function ReservasView() {
                 <div className="modal-body">
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">ID Cliente</label>
+                      <label className="form-label fw-bold text-primary">Identificación Cliente</label>
                       <input
                         type="number"
                         className="form-control form-control-lg"
-                        name="id_cliente"
-                        value={formDataReserva.id_cliente}
+                        name="identificacion_cliente"
+                        value={formDataReserva.identificacion_cliente}
                         onChange={handleInputChange}
                         required
-                        placeholder="ID del cliente"
+                        placeholder="Identificación del cliente"
                       />
                     </div>
                     <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">ID Habitación</label>
-                      <input
-                        type="number"
-                        className="form-control form-control-lg"
-                        name="id_habitacion"
-                        value={formDataReserva.id_habitacion}
+                      <label className="form-label fw-bold text-primary">Tipo Habitación</label>
+                      <select
+                        className="form-select form-select-lg"
+                        name="tipo_habitacion"
+                        value={formDataReserva.tipo_habitacion}
                         onChange={handleInputChange}
                         required
-                        placeholder="ID de la habitación"
-                      />
+                      >
+                        <option value="Individual">Individual</option>
+                        <option value="Doble">Doble</option>
+                        <option value="Familiar">Familiar</option>
+                        <option value="Suite">Suite</option>
+                      </select>
                     </div>
                   </div>
                   <div className="row g-3">
@@ -459,82 +501,12 @@ function ReservasView() {
                       />
                     </div>
                   </div>
-                  <div className="row g-3">
-                    <div className="col-md-4">
-                      <label className="form-label fw-bold text-primary">Número de Personas</label>
-                      <input
-                        type="number"
-                        className="form-control form-control-lg"
-                        name="numero_personas"
-                        value={formDataReserva.numero_personas}
-                        onChange={handleInputChange}
-                        min="1"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <label className="form-label fw-bold text-primary">Total Pago</label>
-                      <input
-                        type="number"
-                        className="form-control form-control-lg"
-                        name="total_pago"
-                        value={formDataReserva.total_pago}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <label className="form-label fw-bold text-primary">Estado</label>
-                      <select
-                        className="form-select form-select-lg"
-                        name="estado"
-                        value={formDataReserva.estado}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        <option value="pendiente">Pendiente</option>
-                        <option value="confirmada">Confirmada</option>
-                        <option value="cancelada">Cancelada</option>
-                        <option value="completada">Completada</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Método de Pago</label>
-                      <select
-                        className="form-select form-select-lg"
-                        name="metodo_pago"
-                        value={formDataReserva.metodo_pago}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        <option value="tarjeta">Tarjeta de Crédito</option>
-                        <option value="transferencia">Transferencia</option>
-                        <option value="efectivo">Efectivo</option>
-                        <option value="otro">Otro</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Observaciones</label>
-                      <textarea
-                        className="form-control form-control-lg"
-                        name="observaciones"
-                        value={formDataReserva.observaciones}
-                        onChange={handleInputChange}
-                        rows="1"
-                        placeholder="Notas adicionales"
-                      />
-                    </div>
-                  </div>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={closeModal}>
                     Cancelar
                   </button>
-                  <button type="submit" className="btn" style={{background: "#a67c52", borderColor: "#a67c52", color: "white"}}>
+                  <button type="submit" className="btn" style={{ background: "#a67c52", borderColor: "#a67c52", color: "white" }}>
                     {editingReserva ? "Actualizar" : "Crear"}
                   </button>
                 </div>

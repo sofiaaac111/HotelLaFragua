@@ -28,6 +28,11 @@ export const getClientePorDocumento = async (numero_documento) => {
   return response.data;
 };
 
+export const getClientePorCorreo = async (correo) => {
+  const response = await clientesApi.get(`/clientes/correo/${correo}`);
+  return response.data;
+};
+
 export const crearCliente = async (cliente) => {
   const response = await clientesApi.post("/clientes/", cliente);
   return response.data;
