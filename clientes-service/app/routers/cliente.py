@@ -46,3 +46,4 @@ def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db), current_use
     if not eliminado:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return {"mensaje": "Cliente eliminado"}
+
