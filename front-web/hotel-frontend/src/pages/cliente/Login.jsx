@@ -28,6 +28,11 @@ function Login() {
         return;
       }
 
+      // Limpiar datos anteriores del localStorage antes de guardar nuevos
+      localStorage.removeItem("clienteData");
+      localStorage.removeItem("usuarioCorreo");
+      localStorage.removeItem("token");
+
       localStorage.setItem("token", token);
       localStorage.setItem("usuarioCorreo", correo); // Guardar el correo para usarlo en el perfil
       

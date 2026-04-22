@@ -14,7 +14,7 @@ registerLocale('es', es);
 setDefaultLocale('es');
 
 function ReservasView() {
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -32,42 +32,55 @@ function ReservasView() {
   const [showAvailable, setShowAvailable] = useState(false);
   const [reservaSuccess, setReservaSuccess] = useState(false);
 
-  // Obtener datos del cliente del localStorage
+  // Verificar autenticación y cargar datos del cliente
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const clienteData = localStorage.getItem('clienteData');
+    
+    setIsAuthenticated(!!token);
+    console.log("Token encontrado:", !!token);
     console.log("Datos del cliente en localStorage:", clienteData);
     
-    if (clienteData) {
-      const cliente = JSON.parse(clienteData);
-      console.log("Cliente parseado:", cliente);
-      
+    if (clienteData && token) {
+      try {
+        const cliente = JSON.parse(clienteData);
+        console.log("Cliente parseado:", cliente);
+        
+        setFormData(prev => ({
+          ...prev,
+          nombre: cliente.nombre || "",
+          apellido: cliente.apellido || "",
+          tipo_documento: cliente.tipo_documento || "CC",
+          numero_documento: cliente.numero_documento || "",
+          correo: cliente.correo || "",
+          telefono: cliente.telefono || ""
+        }));
+        
+        console.log("FormData actualizado:", {
+          nombre: cliente.nombre || "",
+          apellido: cliente.apellido || "",
+          tipo_documento: cliente.tipo_documento || "CC",
+          numero_documento: cliente.numero_documento || "",
+          correo: cliente.correo || "",
+          telefono: cliente.telefono || ""
+        });
+      } catch (error) {
+        console.error("Error parseando datos del cliente:", error);
+        // Limpiar datos corruptos
+        localStorage.removeItem('clienteData');
+      }
+    } else {
+      console.log("No se encontraron datos del cliente o token");
+      // Limpiar formulario si no está autenticado
       setFormData(prev => ({
         ...prev,
-        nombre: cliente.nombre || "",
-        apellido: cliente.apellido || "",
-        tipo_documento: cliente.tipo_documento || "CC",
-        numero_documento: cliente.numero_documento || "",
-        correo: cliente.correo || "",
-        telefono: cliente.telefono || ""
+        nombre: "",
+        apellido: "",
+        tipo_documento: "CC",
+        numero_documento: "",
+        correo: "",
+        telefono: ""
       }));
-      
-      console.log("FormData actualizado:", {
-        nombre: cliente.nombre || "",
-        apellido: cliente.apellido || "",
-        tipo_documento: cliente.tipo_documento || "CC",
-        numero_documento: cliente.numero_documento || "",
-        correo: cliente.correo || "",
-        telefono: cliente.telefono || ""
-      });
-    } else {
-      console.log("No se encontraron datos del cliente en localStorage");
-      
-      // Para pruebas: si no hay datos, verificar si hay token y cargar datos manualmente
-      const token = localStorage.getItem('token');
-      if (token) {
-        console.log("Token encontrado, intentando cargar datos del cliente...");
-        // Aquí podríamos agregar una llamada para cargar los datos
-      }
     }
   }, []);
 
@@ -266,58 +279,6 @@ function ReservasView() {
 
   return (
     <div className="reservas-view-cliente">
-      {/* Barra de Navegación Flotante */}
-      <nav className="navbar navbar-expand-lg navbar-dark fixed-top" style={{
-        background: 'linear-gradient(135deg, rgba(166, 124, 82, 0.95) 0%, rgba(139, 99, 68, 0.95) 100%)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 2px 20px rgba(0,0,0,0.1)'
-      }}>
-        <div className="container">
-          <a className="navbar-brand fw-bold" href="/">
-            <i className="bi bi-building me-2"></i>
-            Hotel La Fragua
-          </a>
-          
-          <button 
-            className="navbar-toggler" 
-            type="button"
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          
-          <div className={`collapse navbar-collapse ${showMobileMenu ? 'show' : ''}`}>
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <a className="nav-link" href="/">
-                  <i className="bi bi-house-door me-1"></i> Inicio
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/habitaciones">
-                  <i className="bi bi-door-closed me-1"></i> Habitaciones
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link active" href="/reservas">
-                  <i className="bi bi-calendar-check me-1"></i> Reservas
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/contacto">
-                  <i className="bi bi-telephone me-1"></i> Contacto
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/login">
-                  <i className="bi bi-person-circle me-1"></i> Iniciar Sesión
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <div 
         className="text-center text-white" 
@@ -327,7 +288,7 @@ function ReservasView() {
           backgroundPosition: 'center center, center center',
           backgroundRepeat: 'no-repeat, no-repeat',
           backgroundColor: '#8B6344',
-          height: '350px',
+          height: '320px',
           position: 'relative',
           display: 'block',
           width: '100%',
@@ -361,7 +322,7 @@ function ReservasView() {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '4rem 2rem 2rem'
+            padding: '2rem 2rem 1rem'
           }}
         >
           <h1 
@@ -392,6 +353,17 @@ function ReservasView() {
                         <i className="bi bi-person me-2"></i>
                         Datos Personales
                       </h4>
+                      {isAuthenticated && (
+                        <div className="alert alert-info mb-4" role="alert">
+                          <div className="d-flex align-items-center">
+                            <i className="bi bi-info-circle me-3 fs-4"></i>
+                            <div>
+                              <strong>Datos autocompletados desde tu perfil</strong><br />
+                              Los datos personales han sido cargados automáticamente desde tu cuenta.
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-md-6">
@@ -404,7 +376,6 @@ function ReservasView() {
                         onChange={handleInputChange}
                         required
                         placeholder="Tu nombre"
-                        readOnly={!!localStorage.getItem('clienteData')}
                       />
                     </div>
 
@@ -418,7 +389,6 @@ function ReservasView() {
                         onChange={handleInputChange}
                         required
                         placeholder="Tu apellido"
-                        readOnly={!!localStorage.getItem('clienteData')}
                       />
                     </div>
 
@@ -430,7 +400,6 @@ function ReservasView() {
                         value={formData.tipo_documento}
                         onChange={handleInputChange}
                         required
-                        disabled={!!localStorage.getItem('clienteData')}
                       >
                         <option value="CC">Cédula de Ciudadanía</option>
                         <option value="CE">Cédula de Extranjería</option>
@@ -448,7 +417,6 @@ function ReservasView() {
                         onChange={handleInputChange}
                         required
                         placeholder="Número de documento"
-                        readOnly={!!localStorage.getItem('clienteData')}
                       />
                     </div>
 
@@ -462,7 +430,6 @@ function ReservasView() {
                         onChange={handleInputChange}
                         required
                         placeholder="Número de teléfono"
-                        readOnly={!!localStorage.getItem('clienteData')}
                       />
                     </div>
 
@@ -476,7 +443,6 @@ function ReservasView() {
                         onChange={handleInputChange}
                         required
                         placeholder="tu@email.com"
-                        readOnly={!!localStorage.getItem('clienteData')}
                       />
                     </div>
 
