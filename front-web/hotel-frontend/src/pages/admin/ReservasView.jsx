@@ -5,9 +5,7 @@ import {
   actualizarReserva,
   eliminarReserva,
   cambiarEstadoReserva,
-  getEstadisticasReservas,
-  checkInReserva,
-  checkOutReserva
+  getEstadisticasReservas
 } from "../../services/reservasApi";
 
 function ReservasView() {
@@ -22,8 +20,10 @@ function ReservasView() {
   const [formDataReserva, setFormDataReserva] = useState({
     identificacion_cliente: "",
     tipo_habitacion: "Individual",
+    numero_habitacion: "",
     fecha_inicio: "",
-    fecha_fin: ""
+    fecha_fin: "",
+    estado: "Pendiente"
   });
 
   useEffect(() => {
@@ -36,14 +36,6 @@ function ReservasView() {
         getReservas(),
         getEstadisticasReservas()
       ]);
-      
-      // Debug: Ver qué campos devuelve el API
-      console.log("Reservas del API:", reservasData);
-      if (reservasData.length > 0) {
-        console.log("Primera reserva:", reservasData[0]);
-        console.log("Campos disponibles:", Object.keys(reservasData[0]));
-      }
-      
       setReservas(reservasData);
       setFilteredReservas(reservasData);
       setEstadisticas(estadisticasData);
@@ -104,34 +96,14 @@ function ReservasView() {
     }
   };
 
-  const handleCheckIn = async (id) => {
-    try {
-      await checkInReserva(id);
-      await cargarDatos();
-      alert("Check-in realizado correctamente");
-    } catch (error) {
-      console.error("Error en check-in:", error);
-      alert("Error al realizar check-in: " + (error.response?.data?.message || error.message));
-    }
-  };
-
-  const handleCheckOut = async (id) => {
-    try {
-      await checkOutReserva(id);
-      await cargarDatos();
-      alert("Check-out realizado correctamente");
-    } catch (error) {
-      console.error("Error en check-out:", error);
-      alert("Error al realizar check-out: " + (error.response?.data?.message || error.message));
-    }
-  };
-
   const resetForm = () => {
     setFormDataReserva({
       identificacion_cliente: "",
       tipo_habitacion: "Individual",
+      numero_habitacion: "",
       fecha_inicio: "",
-      fecha_fin: ""
+      fecha_fin: "",
+      estado: "Pendiente"
     });
     setEditingReserva(null);
   };
@@ -146,8 +118,10 @@ function ReservasView() {
     setFormDataReserva({
       identificacion_cliente: reserva.identificacion_cliente,
       tipo_habitacion: reserva.tipo_habitacion,
+      numero_habitacion: reserva.numero_habitacion,
       fecha_inicio: reserva.fecha_inicio,
-      fecha_fin: reserva.fecha_fin
+      fecha_fin: reserva.fecha_fin,
+      estado: reserva.estado
     });
     setShowModalReserva(true);
   };
@@ -159,9 +133,9 @@ function ReservasView() {
       return (
         reserva.id_reserva?.toString().includes(searchLower) ||
         reserva.identificacion_cliente?.toString().includes(searchLower) ||
+        reserva.tipo_habitacion?.toLowerCase().includes(searchLower) ||
         reserva.numero_habitacion?.toString().includes(searchLower) ||
-        reserva.estado?.toLowerCase().includes(searchLower) ||
-        reserva.tipo_habitacion?.toLowerCase().includes(searchLower)
+        reserva.estado?.toLowerCase().includes(searchLower)
       );
     });
     setFilteredReservas(filtered);
@@ -176,17 +150,6 @@ function ReservasView() {
     };
     const estadoInfo = estados[estado] || { bg: "bg-secondary", text: estado };
     return <span className={`badge ${estadoInfo.bg}`}>{estadoInfo.text}</span>;
-  };
-
-  const getTipoHabitacionBadge = (tipo) => {
-    const tipos = {
-      Individual: { bg: "bg-primary", text: "Individual" },
-      Doble: { bg: "bg-secondary", text: "Doble" },
-      Familiar: { bg: "bg-info", text: "Familiar" },
-      Suite: { bg: "bg-success", text: "Suite" }
-    };
-    const tipoInfo = tipos[tipo] || { bg: "bg-secondary", text: tipo };
-    return <span className={`badge ${tipoInfo.bg}`}>{tipoInfo.text}</span>;
   };
 
   if (loading) {
@@ -285,7 +248,7 @@ function ReservasView() {
             <input
               type="text"
               className="form-control form-control-lg"
-              placeholder="Buscar por ID, cliente, habitación o estado..."
+              placeholder="Buscar por ID, identificación, habitación, tipo o estado..."
               value={searchReserva}
               onChange={(e) => setSearchReserva(e.target.value)}
             />
@@ -308,9 +271,9 @@ function ReservasView() {
               <thead className="table-light">
                 <tr>
                   <th className="border-0">ID Reserva</th>
-                  <th className="border-0">ID Cliente</th>
+                  <th className="border-0">Identificación Cliente</th>
                   <th className="border-0">Tipo Habitación</th>
-                  <th className="border-0">N° Habitación</th>
+                  <th className="border-0">Número Habitación</th>
                   <th className="border-0">Fecha Inicio</th>
                   <th className="border-0">Fecha Fin</th>
                   <th className="border-0">Estado</th>
@@ -329,33 +292,28 @@ function ReservasView() {
                         <span className="fw-semibold">{reserva.identificacion_cliente}</span>
                       </td>
                       <td className="align-middle">
-                        {getTipoHabitacionBadge(reserva.tipo_habitacion)}
+                        <span className="fw-semibold">{reserva.tipo_habitacion}</span>
                       </td>
                       <td className="align-middle">
-                        <span className="fw-semibold">
-                          {reserva.numero_habitacion ? `#${reserva.numero_habitacion}` : 'Sin asignar'}
+                        <span className="fw-semibold">{reserva.numero_habitacion}</span>
+                      </td>
+                      <td className="align-middle">
+                        <span className="small">
+                          {reserva.fecha_inicio ? new Date(reserva.fecha_inicio).toLocaleDateString() : ""}
                         </span>
                       </td>
                       <td className="align-middle">
-                        <div className="small">
-                          <i className="bi bi-calendar-event me-1"></i>
-                          {new Date(reserva.fecha_inicio).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="align-middle">
-                        <div className="small">
-                          <i className="bi bi-calendar-event me-1"></i>
-                          {new Date(reserva.fecha_fin).toLocaleDateString()}
-                        </div>
+                        <span className="small">
+                          {reserva.fecha_fin ? new Date(reserva.fecha_fin).toLocaleDateString() : ""}
+                        </span>
                       </td>
                       <td className="align-middle">
                         {getEstadoBadge(reserva.estado)}
                       </td>
                       <td className="align-middle">
-                        <div className="small text-muted">
-                          <i className="bi bi-clock me-1"></i>
-                          {new Date(reserva.fecha_creacion).toLocaleDateString()}
-                        </div>
+                        <span className="small text-muted">
+                          {reserva.fecha_creacion ? new Date(reserva.fecha_creacion).toLocaleString() : ""}
+                        </span>
                       </td>
                       <td className="align-middle">
                         <div className="btn-group">
@@ -377,27 +335,17 @@ function ReservasView() {
                             </button>
                           )}
                           
-                          {reserva.estado === 'Pendiente' && (
-                            <button
-                              className="btn btn-sm btn-outline-info"
-                              onClick={() => handleCheckIn(reserva.id_reserva)}
-                              title="Realizar Check-in"
-                            >
-                              <i className="bi bi-box-arrow-in-right"></i>
-                            </button>
-                          )}
-                          
                           {reserva.estado === 'Confirmada' && (
                             <button
-                              className="btn btn-sm btn-outline-warning"
-                              onClick={() => handleCheckOut(reserva.id_reserva)}
-                              title="Realizar Check-out"
+                              className="btn btn-sm btn-outline-info"
+                              onClick={() => handleCambiarEstado(reserva.id_reserva, 'Finalizada')}
+                              title="Completar reserva"
                             >
-                              <i className="bi bi-box-arrow-right"></i>
+                              <i className="bi bi-check-circle"></i>
                             </button>
                           )}
                           
-                          {reserva.estado !== 'Cancelada' && reserva.estado !== 'Finalizada' && (
+                          {reserva.estado !== 'Cancelada' && (
                             <button
                               className="btn btn-sm btn-outline-warning"
                               onClick={() => handleCambiarEstado(reserva.id_reserva, 'Cancelada')}
@@ -479,6 +427,35 @@ function ReservasView() {
                   </div>
                   <div className="row g-3">
                     <div className="col-md-6">
+                      <label className="form-label fw-bold text-primary">Número Habitación</label>
+                      <input
+                        type="number"
+                        className="form-control form-control-lg"
+                        name="numero_habitacion"
+                        value={formDataReserva.numero_habitacion}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Número de habitación"
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold text-primary">Estado</label>
+                      <select
+                        className="form-select form-select-lg"
+                        name="estado"
+                        value={formDataReserva.estado}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Finalizada">Finalizada</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="row g-3">
+                    <div className="col-md-6">
                       <label className="form-label fw-bold text-primary">Fecha Inicio</label>
                       <input
                         type="date"
@@ -506,7 +483,7 @@ function ReservasView() {
                   <button type="button" className="btn btn-secondary" onClick={closeModal}>
                     Cancelar
                   </button>
-                  <button type="submit" className="btn" style={{ background: "#a67c52", borderColor: "#a67c52", color: "white" }}>
+                  <button type="submit" className="btn" style={{background: "#a67c52", borderColor: "#a67c52", color: "white"}}>
                     {editingReserva ? "Actualizar" : "Crear"}
                   </button>
                 </div>
