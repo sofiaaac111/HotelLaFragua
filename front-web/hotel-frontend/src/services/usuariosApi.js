@@ -1,7 +1,8 @@
 import axios from "axios";
+import { AUTH_API_BASE_URL } from "./config.js";
 
 const usuariosApi = axios.create({
-  baseURL: "http://localhost:8086/auth",
+  baseURL: AUTH_API_BASE_URL,
 });
 
 usuariosApi.interceptors.request.use(config => {
@@ -42,37 +43,7 @@ export const getUsuarios = async () => {
       try {
         console.log(`Intentando endpoint: ${endpoint}`);
         
-        // Para usuarios, intentar con y sin token como query parameter
-        let response;
-        const token = localStorage.getItem("token");
-        
-        if (token) {
-          // Para usuarios, el backend parece requerir token como query parameter
-          try {
-            response = await usuariosApi.get(`${endpoint}?token=${token}`);
-            console.log(`Éxito con ${endpoint} (query token):`, response.data);
-            return response.data;
-          } catch (queryError) {
-            console.log(`Error con ${endpoint} (query token):`, queryError.response?.status);
-            
-            // Si es 422, mostrar detalles y no intentar más
-            if (queryError.response?.status === 422) {
-              console.log("=== ERROR 422 DETALLES ===");
-              console.log("Endpoint:", endpoint);
-              console.log("Status:", queryError.response.status);
-              console.log("Status Text:", queryError.response.statusText);
-              console.log("Data:", queryError.response.data);
-              console.log("Headers:", queryError.response.headers);
-              console.log("Config:", queryError.config);
-              console.log("=== FIN ERROR 422 ===");
-              // Continuar con el siguiente endpoint
-            } else if (queryError.response?.status !== 404) {
-              throw queryError;
-            }
-          }
-        } else {
-          response = await usuariosApi.get(endpoint);
-        }
+        const response = await usuariosApi.get(endpoint);
         
         console.log(`Éxito con ${endpoint}:`, response.data);
         return response.data;
@@ -159,14 +130,12 @@ export const crearUsuario = async (usuario) => {
 };
 
 export const actualizarUsuario = async (id, usuario) => {
-  const token = localStorage.getItem("token");
-  const response = await usuariosApi.put(`/users/${id}?token=${token}`, usuario);
+  const response = await usuariosApi.put(`/users/${id}`, usuario);
   return response.data;
 };
 
 export const eliminarUsuario = async (id) => {
-  const token = localStorage.getItem("token");
-  const response = await usuariosApi.delete(`/users/${id}?token=${token}`);
+  const response = await usuariosApi.delete(`/users/${id}`);
   return response.data;
 };
 

@@ -1,4 +1,7 @@
+import os
+from pathlib import Path
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from .models import Reserva
 from .database import SessionLocal
 import requests
@@ -6,8 +9,13 @@ from fastapi import HTTPException
 from datetime import date
 from typing import List, Dict
 
-CLIENTES_SERVICE_URL = "http://localhost:8081"
-HABITACIONES_SERVICE_URL = "http://localhost:8082"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SERVICE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(SERVICE_DIR / ".env")
+
+CLIENTES_SERVICE_URL = os.getenv("CLIENTES_SERVICE_URL", "http://localhost:8081")
+HABITACIONES_SERVICE_URL = os.getenv("HABITACIONES_SERVICE_URL", "http://localhost:8082/api")
 
 
 def verificar_cliente(id_cliente: int) -> bool:
@@ -171,6 +179,3 @@ def actualizar_reservas_vencidas():
         db.commit()
     finally:
         db.close()
-
-    db.commit()
-    db.close()

@@ -1,15 +1,27 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from jose import jwt, JWTError
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-# DEBE SER IDÉNTICO al de auth-service
-SECRET_KEY = "hotel_lafragua_123"
-ALGORITHM = "HS256"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SERVICE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(SERVICE_DIR / ".env")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 
 def _is_auth_enabled() -> bool:
     return os.getenv("AUTH_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _get_secret_key() -> str:
+    if not SECRET_KEY:
+        raise RuntimeError("SECRET_KEY no está configurado en las variables de entorno")
+    return SECRET_KEY
 
 # Configurar HTTPBearer para Swagger UI
 security = HTTPBearer(auto_error=False)
@@ -36,7 +48,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
             )
 
         token = credentials.credentials
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, _get_secret_key(), algorithms=[ALGORITHM])
         user_identity = payload.get("sub") or payload.get("nombre_usuario") or payload.get("correo")
         if user_identity is None and payload.get("id_usuario") is not None:
             user_identity = str(payload.get("id_usuario"))
@@ -54,4 +66,3 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
             detail="Token inválido",
             headers={"WWW-Authenticate": "Bearer"},
         )
-

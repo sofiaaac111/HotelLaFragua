@@ -1,10 +1,15 @@
+import os
+from pathlib import Path
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from .models import Factura
-import requests
-from fastapi import HTTPException
-from datetime import date
 
-RESERVAS_SERVICE_URL = "http://localhost:8083"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SERVICE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(SERVICE_DIR / ".env")
+
+RESERVAS_SERVICE_URL = os.getenv("RESERVAS_SERVICE_URL", "http://localhost:8083")
 
 def crear_factura(db: Session, factura):
     nueva = Factura(

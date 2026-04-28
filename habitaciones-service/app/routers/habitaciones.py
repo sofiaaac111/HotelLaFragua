@@ -1,10 +1,22 @@
+import os
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from ..database import get_db
 from .. import crud, schemas
 from ..security import verify_token
 import urllib.request
 import urllib.error
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SERVICE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(SERVICE_DIR / ".env")
+
+CLIENTES_SERVICE_URL = os.getenv("CLIENTES_SERVICE_URL", "http://localhost:8081")
+ESTADO_LIBRE = "Libre"
+ESTADO_OCUPADA = "Ocupada"
 
 router = APIRouter(prefix="/api/habitaciones", tags=["Habitaciones"])
 
@@ -56,8 +68,7 @@ def eliminar_habitacion(numero_habitacion: int, db: Session = Depends(get_db), c
 # -----------------------------
 
 def validar_cliente_existente(id_cliente: int):
-    # Ajusta URL según la ruta actual del microservicio de clientes
-    url = f"http://localhost:8081/clientes/documento/{id_cliente}"
+    url = f"{CLIENTES_SERVICE_URL}/clientes/documento/{id_cliente}"
     try:
         with urllib.request.urlopen(url, timeout=3) as response:
             return response.status == 200
@@ -88,14 +99,14 @@ def crear_ocupacion(ocupacion: schemas.OcupacionHabitacionCreate, db: Session = 
     habitacion = db.query(models.Habitacion).filter(models.Habitacion.numero_habitacion == ocupacion.numero_habitacion).first()
     if not habitacion:
         raise HTTPException(status_code=404, detail="Habitación no encontrada")
-    if habitacion.estado != 'Libre':
+    if habitacion.estado != ESTADO_LIBRE:
         raise HTTPException(status_code=400, detail="Habitación no disponible")
 
     # Registrar ocupación
     registro = crud.create_ocupacion(db, ocupacion)
 
     # Marcar habitación como ocupada
-    habitacion.estado = 'Ocupada'
+    habitacion.estado = ESTADO_OCUPADA
     db.commit()
     db.refresh(habitacion)
 
@@ -112,7 +123,7 @@ def finalizar_ocupacion(id_ocupacion: int, data: schemas.OcupacionHabitacionUpda
     # Liberar habitación en caso de cierre
     habitacion = db.query(models.Habitacion).filter(models.Habitacion.numero_habitacion == ocupacion.numero_habitacion).first()
     if habitacion:
-        habitacion.estado = 'LIBRE'
+        habitacion.estado = ESTADO_LIBRE
         db.commit()
         db.refresh(habitacion)
 

@@ -1,7 +1,8 @@
 import axios from "axios";
+import { CLIENTES_SERVICE_URL } from "./config.js";
 
 const clientesApi = axios.create({
-  baseURL: "http://localhost:8081",
+  baseURL: CLIENTES_SERVICE_URL,
 });
 
 clientesApi.interceptors.request.use(config => {

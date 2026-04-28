@@ -1,0 +1,132 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./auth-service/.env
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8086:8086"
+    restart: unless-stopped
+
+  clientes-service:
+    build:
+      context: .
+      dockerfile: clientes-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./clientes-service/.env
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  habitaciones-service:
+    build:
+      context: .
+      dockerfile: habitaciones-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./habitaciones-service/.env
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      CLIENTES_SERVICE_URL: http://clientes-service:8081
+    depends_on:
+      clientes-service:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+
+  reservas-service:
+    build:
+      context: .
+      dockerfile: reservas-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./reservas-service/.env
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      CLIENTES_SERVICE_URL: http://clientes-service:8081
+      HABITACIONES_SERVICE_URL: http://habitaciones-service:8082/api
+    depends_on:
+      clientes-service:
+        condition: service_started
+      habitaciones-service:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+
+  facturacion-service:
+    build:
+      context: .
+      dockerfile: facturacion-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./facturacion-service/.env
+    environment:
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      RESERVAS_SERVICE_URL: http://reservas-service:8083
+    depends_on:
+      reservas-service:
+        condition: service_started
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
+
+  empleados-service:
+    build:
+      context: .
+      dockerfile: empleados-service/Dockerfile
+    env_file:
+      - ./.env
+      - ./empleados-service/.env
+    environment:
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8085:8085"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: front-web/hotel-frontend/Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      VITE_AUTH_SERVICE_URL: ${VITE_AUTH_SERVICE_URL:-http://localhost:8086}
+      VITE_CLIENTES_SERVICE_URL: ${VITE_CLIENTES_SERVICE_URL:-http://localhost:8081}
+      VITE_HABITACIONES_SERVICE_URL: ${VITE_HABITACIONES_SERVICE_URL:-http://localhost:8082}
+      VITE_RESERVAS_SERVICE_URL: ${VITE_RESERVAS_SERVICE_URL:-http://localhost:8083}
+      VITE_FACTURACION_SERVICE_URL: ${VITE_FACTURACION_SERVICE_URL:-http://localhost:8084}
+      VITE_EMPLEADOS_SERVICE_URL: ${VITE_EMPLEADOS_SERVICE_URL:-http://localhost:8085}
+    depends_on:
+      auth-service:
+        condition: service_started
+      clientes-service:
+        condition: service_started
+      habitaciones-service:
+        condition: service_started
+      reservas-service:
+        condition: service_started
+    ports:
+      - "5173:5173"
+    restart: unless-stopped

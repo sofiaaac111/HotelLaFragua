@@ -1,7 +1,8 @@
 import axios from "axios";
+import { HABITACIONES_API_BASE_URL } from "./config.js";
 
 const habitacionesApi = axios.create({
-  baseURL: "http://localhost:8082/api",
+  baseURL: HABITACIONES_API_BASE_URL,
 });
 
 habitacionesApi.interceptors.request.use(config => {
