@@ -1,16 +1,18 @@
 // src/pages/admin/Habitaciones.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getHabitaciones,
   crearHabitacion,
   actualizarHabitacion,
   eliminarHabitacion,
-} from "../../services/habitacionesService";
+} from "../../services/habitacionesApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../assets/css/hotel-styles.css";
 
 function Habitaciones() {
+  const navigate = useNavigate();
   const [habitaciones, setHabitaciones] = useState([]);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -26,6 +28,16 @@ function Habitaciones() {
     foto: "",
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Debes iniciar sesión para acceder a esta página");
+      navigate("/login");
+      return;
+    }
+    cargarHabitaciones();
+  }, []);
+
   const cargarHabitaciones = async () => {
     try {
       const data = await getHabitaciones();
@@ -34,10 +46,6 @@ function Habitaciones() {
       console.error("Error cargando habitaciones:", error);
     }
   };
-
-  useEffect(() => {
-    cargarHabitaciones();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,9 +62,9 @@ function Habitaciones() {
   const handleFotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar tamaño del archivo (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo es demasiado grande. Máximo 5MB.');
+      // Validar tamaño del archivo (máximo 20MB)
+      if (file.size > 20 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 20MB.');
         e.target.value = '';
         return;
       }
@@ -492,7 +500,7 @@ function Habitaciones() {
                         onChange={handleFotoChange}
                         id="fotoInput"
                       />
-                      <small className="text-muted">Formatos aceptados: JPG, PNG, GIF. Máximo 5MB</small>
+                      <small className="text-muted">Formatos aceptados: JPG, PNG, GIF. Máximo 20MB</small>
                     </div>
                   </div>
                   
@@ -552,19 +560,19 @@ function Habitaciones() {
         </div>
         <div className="card-body">
           <div className="table-responsive">
-            <table className="table table-hover">
+            <table className="table table-hover table-sm">
               <thead className="table-light">
                 <tr>
-                  <th>Número</th>
-                  <th>Foto</th>
-                  <th>Tipo</th>
-                  <th>Ocupación</th>
-                  <th>Camas</th>
-                  <th>Precio</th>
-                  <th>Estado</th>
-                  <th>Descripción</th>
-                  <th>Comodidades</th>
-                  <th>Acciones</th>
+                  <th style={{width: '80px'}}>Número</th>
+                  <th style={{width: '80px'}}>Foto</th>
+                  <th style={{width: '100px'}}>Tipo</th>
+                  <th style={{width: '90px'}}>Ocupación</th>
+                  <th style={{width: '70px'}}>Camas</th>
+                  <th style={{width: '100px'}}>Precio</th>
+                  <th style={{width: '90px'}}>Estado</th>
+                  <th style={{width: '200px'}}>Descripción</th>
+                  <th style={{width: '150px'}}>Comodidades</th>
+                  <th style={{width: '100px'}}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -578,52 +586,62 @@ function Habitaciones() {
                         <img 
                           src={habitacion.foto} 
                           alt="Foto de la habitación" 
-                          className="img-fluid rounded"
-                          style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                          className="rounded"
+                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                         />
                       ) : (
                         <div 
                           className="rounded bg-light d-flex align-items-center justify-content-center"
-                          style={{ width: '60px', height: '60px' }}
+                          style={{ width: '50px', height: '50px' }}
                         >
                           <i className="bi bi-image text-muted"></i>
                         </div>
                       )}
                     </td>
                     <td>
-                      <span className="me-2">{getTipoIcon(habitacion.tipo_habitacion)}</span>
-                      {habitacion.tipo_habitacion}
+                      <div className="d-flex align-items-center">
+                        <span className="me-1">{getTipoIcon(habitacion.tipo_habitacion)}</span>
+                        <span className="text-truncate" style={{maxWidth: '70px'}} title={habitacion.tipo_habitacion}>
+                          {habitacion.tipo_habitacion}
+                        </span>
+                      </div>
                     </td>
-                    <td>{habitacion.ocupacion} personas</td>
-                    <td>{habitacion.numero_camas}</td>
                     <td>
-                      <span className="fw-bold" style={{color: '#a67c52'}}>
+                      <small>{habitacion.ocupacion} personas</small>
+                    </td>
+                    <td>
+                      <small>{habitacion.numero_camas}</small>
+                    </td>
+                    <td>
+                      <span className="fw-bold" style={{color: '#a67c52', fontSize: '0.9rem'}}>
                         ${parseFloat(habitacion.precio_base).toLocaleString()}
                       </span>
                     </td>
                     <td>
                       <div className="d-flex align-items-center">
-                        <span className={`badge bg-${getEstadoBadge(habitacion.estado)} me-2 px-3 py-2`}>
+                        <span className={`badge bg-${getEstadoBadge(habitacion.estado)} me-1`} style={{fontSize: '0.75rem'}}>
                           <span className="me-1">{getEstadoIcon(habitacion.estado)}</span>
                           {habitacion.estado}
                         </span>
                       </div>
                     </td>
                     <td>
-                      <span style={{color: '#2c3e50'}}>
-                        {habitacion.descripcion || "Sin descripción"}
-                      </span>
+                      <div className="text-truncate" style={{maxWidth: '180px'}} title={habitacion.descripcion || "Sin descripción"}>
+                        <small style={{color: '#2c3e50'}}>
+                          {habitacion.descripcion || "Sin descripción"}
+                        </small>
+                      </div>
                     </td>
                     <td>
-                      <div className="d-flex flex-wrap gap-1">
-                        {(habitacion.comodidades || []).slice(0, 3).map(comodidadId => (
-                          <span key={comodidadId} className="badge bg-light text-dark" title={getComodidadLabel(comodidadId)}>
+                      <div className="d-flex flex-wrap gap-1" style={{maxWidth: '130px'}}>
+                        {(habitacion.comodidades || []).slice(0, 2).map(comodidadId => (
+                          <span key={comodidadId} className="badge bg-light text-dark" style={{fontSize: '0.7rem'}} title={getComodidadLabel(comodidadId)}>
                             {getComodidadIcon(comodidadId)}
                           </span>
                         ))}
-                        {(habitacion.comodidades || []).length > 3 && (
-                          <span className="badge bg-secondary">
-                            +{(habitacion.comodidades || []).length - 3}
+                        {(habitacion.comodidades || []).length > 2 && (
+                          <span className="badge bg-secondary" style={{fontSize: '0.7rem'}}>
+                            +{(habitacion.comodidades || []).length - 2}
                           </span>
                         )}
                       </div>

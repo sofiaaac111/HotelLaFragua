@@ -5,7 +5,7 @@ function LayoutCliente() {
   return (
     <>
       <NavbarCliente />
-      <div style={{ padding: "2rem" }}>
+      <div style={{ paddingTop: "100px" }}>
         <Outlet />
       </div>
     </>

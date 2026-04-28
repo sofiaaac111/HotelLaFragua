@@ -9,16 +9,27 @@
   background: transparent;
   transition: all 0.3s ease;
   z-index: 1000;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .navbar.scrolled {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
 }
+
 .logo {
   font-size: 22px;
   font-weight: bold;
   color: #9c7b3f;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .nav-links {
@@ -26,10 +37,28 @@
   list-style: none;
   gap: 30px;
   font-weight: 500;
+  color: #2c3e50;
 }
 
 .nav-links li {
   cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-links li::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #9c7b3f;
+  transition: width 0.3s ease;
+}
+
+.nav-links li:hover::after {
+  width: 100%;
 }
 
 .nav-buttons {
@@ -43,6 +72,16 @@
   padding: 8px 18px;
   border-radius: 20px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  color: #9c7b3f;
+  font-weight: 500;
+}
+
+.btn-outline:hover {
+  background: #9c7b3f;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(156, 123, 63, 0.3);
 }
 
 .btn-gold {
@@ -52,4 +91,66 @@
   padding: 8px 18px;
   border-radius: 20px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-gold:hover {
+  background: #8a6a37;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(156, 123, 63, 0.3);
+}
+
+.btn-logout {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-logout:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-admin {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-admin:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 20px;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+  
+  .nav-buttons {
+    gap: 10px;
+  }
+  
+  .btn-outline, .btn-gold, .btn-logout {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
 }

@@ -26,6 +26,13 @@ def obtener_cliente_por_documento(numero_documento: str, db: Session = Depends(g
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return cliente
 
+@router.get("/correo/{correo}", response_model=schemas.Cliente)
+def obtener_cliente_por_correo(correo: str, db: Session = Depends(get_db), current_user = Depends(verify_token)):
+    cliente = crud.get_cliente_por_correo(db, correo)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
+
 @router.put("/{cliente_id}", response_model=schemas.Cliente)
 def actualizar_cliente(cliente_id: int, cliente_update: schemas.ClienteUpdate, db: Session = Depends(get_db), current_user = Depends(verify_token)):
     cliente = crud.update_cliente(db, cliente_id, cliente_update)
