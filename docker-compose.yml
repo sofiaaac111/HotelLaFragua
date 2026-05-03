@@ -12,6 +12,9 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    volumes:
+      - ./auth-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8086 --reload
     ports:
       - "8086:8086"
     restart: unless-stopped
@@ -28,6 +31,9 @@ services:
       ALGORITHM: ${ALGORITHM:-HS256}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    volumes:
+      - ./clientes-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8081 --reload
     ports:
       - "8081:8081"
     restart: unless-stopped
@@ -45,6 +51,9 @@ services:
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       CLIENTES_SERVICE_URL: http://clientes-service:8081
+    volumes:
+      - ./habitaciones-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8082 --reload
     depends_on:
       clientes-service:
         condition: service_started
@@ -66,6 +75,9 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       CLIENTES_SERVICE_URL: http://clientes-service:8081
       HABITACIONES_SERVICE_URL: http://habitaciones-service:8082/api
+    volumes:
+      - ./reservas-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8083 --reload
     depends_on:
       clientes-service:
         condition: service_started
@@ -85,6 +97,9 @@ services:
     environment:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       RESERVAS_SERVICE_URL: http://reservas-service:8083
+    volumes:
+      - ./facturacion-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8084 --reload
     depends_on:
       reservas-service:
         condition: service_started
@@ -101,6 +116,9 @@ services:
       - ./empleados-service/.env
     environment:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    volumes:
+      - ./empleados-service/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8085 --reload
     ports:
       - "8085:8085"
     restart: unless-stopped
@@ -118,6 +136,12 @@ services:
       VITE_RESERVAS_SERVICE_URL: ${VITE_RESERVAS_SERVICE_URL:-http://localhost:8083}
       VITE_FACTURACION_SERVICE_URL: ${VITE_FACTURACION_SERVICE_URL:-http://localhost:8084}
       VITE_EMPLEADOS_SERVICE_URL: ${VITE_EMPLEADOS_SERVICE_URL:-http://localhost:8085}
+    volumes:
+      - ./front-web/hotel-frontend/src:/app/src
+      - ./front-web/hotel-frontend/public:/app/public
+      - ./front-web/hotel-frontend/index.html:/app/index.html
+      - ./front-web/hotel-frontend/vite.config.js:/app/vite.config.js
+      - /app/node_modules
     depends_on:
       auth-service:
         condition: service_started
