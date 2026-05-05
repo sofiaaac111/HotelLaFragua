@@ -146,15 +146,3 @@ export const cambiarEstadoReserva = async (id, nuevoEstado) => {
   }
 };
 
-// Obtener estadísticas de reservas
-export const getEstadisticasReservas = async () => {
-  try {
-    const response = await api.get("/reservas/estadisticas", {
-      headers: getAuthHeaders(),
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error obteniendo estadísticas de reservas:", error);
-    throw error;
-  }
-};
