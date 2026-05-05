@@ -141,7 +141,6 @@ services:
       - ./front-web/hotel-frontend/public:/app/public
       - ./front-web/hotel-frontend/index.html:/app/index.html
       - ./front-web/hotel-frontend/vite.config.js:/app/vite.config.js
-      - /app/node_modules
     depends_on:
       auth-service:
         condition: service_started
