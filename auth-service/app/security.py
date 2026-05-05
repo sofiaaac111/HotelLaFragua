@@ -29,6 +29,7 @@ def _get_secret_key() -> str:
         raise RuntimeError("SECRET_KEY no está configurado en las variables de entorno")
     return SECRET_KEY
 
+
 def hash_password(password: str):
     return pwd_context.hash(password)
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AUTH_API_BASE_URL } from "../../services/config.js";
+import { getClientePorCorreo } from "../../services/clientesApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -28,8 +29,27 @@ function Login() {
         return;
       }
 
+      // Limpiar datos anteriores del localStorage antes de guardar nuevos
+      localStorage.removeItem("clienteData");
+      localStorage.removeItem("usuarioCorreo");
+      localStorage.removeItem("token");
+
       localStorage.setItem("token", token);
       localStorage.setItem("usuarioCorreo", correo); // Guardar el correo para usarlo en el perfil
+      
+      // Obtener datos completos del cliente
+      try {
+        const clienteData = await getClientePorCorreo(correo);
+        
+        if (clienteData) {
+          // Guardar datos completos del cliente
+          localStorage.setItem("clienteData", JSON.stringify(clienteData));
+          console.log("Datos del cliente guardados:", clienteData);
+        }
+      } catch (clienteError) {
+        console.error("Error obteniendo datos del cliente:", clienteError);
+        // Continuar aunque no se obtengan los datos del cliente
+      }
       
       alert("¡Sesión iniciada correctamente!");
       navigate("/perfil");

@@ -23,6 +23,7 @@ def _get_secret_key() -> str:
         raise RuntimeError("SECRET_KEY no está configurado en las variables de entorno")
     return SECRET_KEY
 
+
 # Configurar HTTPBearer para Swagger UI
 security = HTTPBearer(auto_error=False)
 

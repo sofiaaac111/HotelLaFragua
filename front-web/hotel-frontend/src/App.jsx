@@ -10,12 +10,13 @@ import PerfilCliente from "./pages/cliente/PerfilCliente.jsx";
 import Login from "./pages/cliente/Login.jsx";
 import RegistroCliente from "./pages/cliente/RegistroCliente.jsx";
 import HabitacionesView from "./pages/cliente/HabitacionesView.jsx";
+import ClienteReservasView from "./pages/cliente/ReservasView.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import Habitaciones from "./pages/admin/Habitaciones.jsx";
 import UsuariosView from "./pages/admin/UsuariosView.jsx";
-import ReservasView from "./pages/admin/ReservasView.jsx";
+import AdminReservasView from "./pages/admin/ReservasView.jsx";
 import LoginAdmin from "./pages/admin/LoginAdmin.jsx";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
       <Route element={<LayoutCliente />}>
         <Route path="/" element={<ClienteHome />} />
         <Route path="/habitaciones" element={<HabitacionesView />} />
+        <Route path="/reservas" element={<ClienteReservasView />} />
         <Route path="/perfil" element={<PerfilCliente />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<RegistroCliente />} />
@@ -35,7 +37,7 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path="habitaciones" element={<Habitaciones />} />
         <Route path="usuarios" element={<UsuariosView />} />
-        <Route path="reservas" element={<ReservasView />} />
+        <Route path="reservas" element={<AdminReservasView />} />
         <Route path="login" element={<LoginAdmin />} />
       </Route>
     </Routes>
