@@ -4,8 +4,7 @@ import {
   crearReserva,
   actualizarReserva,
   eliminarReserva,
-  cambiarEstadoReserva,
-  getEstadisticasReservas
+  cambiarEstadoReserva
 } from "../../services/reservasApi";
 
 function ReservasView() {
@@ -15,7 +14,6 @@ function ReservasView() {
   const [searchReserva, setSearchReserva] = useState("");
   const [showModalReserva, setShowModalReserva] = useState(false);
   const [editingReserva, setEditingReserva] = useState(null);
-  const [estadisticas, setEstadisticas] = useState(null);
 
   const [formDataReserva, setFormDataReserva] = useState({
     identificacion_cliente: "",
@@ -32,13 +30,9 @@ function ReservasView() {
 
   const cargarDatos = async () => {
     try {
-      const [reservasData, estadisticasData] = await Promise.all([
-        getReservas(),
-        getEstadisticasReservas()
-      ]);
+      const reservasData = await getReservas();
       setReservas(reservasData);
       setFilteredReservas(reservasData);
-      setEstadisticas(estadisticasData);
     } catch (error) {
       console.error("Error cargando datos:", error);
     } finally {
@@ -165,44 +159,6 @@ function ReservasView() {
 
   return (
     <div className="py-4">
-      {/* Estadísticas */}
-      {estadisticas && (
-        <div className="row mb-4">
-          <div className="col-md-3">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body text-center">
-                <h3 className="text-primary mb-1">{estadisticas.total}</h3>
-                <p className="text-muted mb-0">Total Reservas</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body text-center">
-                <h3 className="text-success mb-1">{estadisticas.confirmadas}</h3>
-                <p className="text-muted mb-0">Confirmadas</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body text-center">
-                <h3 className="text-warning mb-1">{estadisticas.pendientes}</h3>
-                <p className="text-muted mb-0">Pendientes</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body text-center">
-                <h3 className="text-danger mb-1">{estadisticas.canceladas}</h3>
-                <p className="text-muted mb-0">Canceladas</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="row mb-4">
         <div className="col-12">
