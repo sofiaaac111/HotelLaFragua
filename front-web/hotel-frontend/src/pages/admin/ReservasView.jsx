@@ -4,8 +4,7 @@ import {
   crearReserva,
   actualizarReserva,
   eliminarReserva,
-  cambiarEstadoReserva,
-  getEstadisticasReservas
+  cambiarEstadoReserva
 } from "../../services/reservasApi";
 
 function ReservasView() {
@@ -32,13 +31,9 @@ function ReservasView() {
 
   const cargarDatos = async () => {
     try {
-      const [reservasData, estadisticasData] = await Promise.all([
-        getReservas(),
-        getEstadisticasReservas()
-      ]);
+      const reservasData = await getReservas();
       setReservas(reservasData);
       setFilteredReservas(reservasData);
-      setEstadisticas(estadisticasData);
     } catch (error) {
       console.error("Error cargando datos:", error);
     } finally {

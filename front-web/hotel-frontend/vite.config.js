@@ -15,6 +15,11 @@ export default defineConfig({
         target: 'http://localhost:8086',
         changeOrigin: true,
         secure: false,
+      },
+      '/reservas': {
+        target: 'http://localhost:8083',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }
