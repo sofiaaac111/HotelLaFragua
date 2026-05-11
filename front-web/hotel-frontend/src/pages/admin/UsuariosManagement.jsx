@@ -5,6 +5,8 @@ import {
   crearUsuario, 
   actualizarUsuario
 } from "../../services/usuariosApi";
+import { crearCliente, getClientePorCorreo, actualizarCliente } from "../../services/clientesApi";
+import { crearEmpleado, getEmpleados, eliminarEmpleado, actualizarEmpleado } from "../../services/empleadosApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../assets/css/hotel-styles.css";
@@ -15,20 +17,50 @@ function UsuariosManagement() {
   const [loading, setLoading] = useState(true);
   const [showModalUsuario, setShowModalUsuario] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState(null);
+  const [originalRoles, setOriginalRoles] = useState([]);
   const [searchUsuario, setSearchUsuario] = useState("");
   const [formDataUsuario, setFormDataUsuario] = useState({
-    nombre_usuario: "",
     correo: "",
     contraseña: "",
     roles: [],
     estado: true,
+    numero_documento: "",
+    nombre_usuario: "",
     // Campos adicionales para clientes
     nombre_cliente: "",
     apellido_cliente: "",
     telefono_cliente: "",
     tipo_documento_cliente: "CC",
-    numero_documento_cliente: ""
+    numero_documento_cliente: "",
+    // Campos adicionales para empleados
+    nombre_empleado: "",
+    apellido_empleado: "",
+    cargo_empleado: "",
+    telefono_empleado: ""
   });
+
+  const applyRoleChange = (prev, nuevoRol) => {
+    const next = {
+      ...prev,
+      roles: [nuevoRol]
+    };
+
+    if (nuevoRol === "Empleado") {
+      if (!next.nombre_empleado && next.nombre_cliente) next.nombre_empleado = next.nombre_cliente;
+      if (!next.apellido_empleado && next.apellido_cliente) next.apellido_empleado = next.apellido_cliente;
+      if (!next.telefono_empleado && next.telefono_cliente) next.telefono_empleado = next.telefono_cliente;
+      if (!next.numero_documento && next.numero_documento_cliente) next.numero_documento = next.numero_documento_cliente;
+    }
+
+    if (nuevoRol === "Cliente") {
+      if (!next.nombre_cliente && next.nombre_empleado) next.nombre_cliente = next.nombre_empleado;
+      if (!next.apellido_cliente && next.apellido_empleado) next.apellido_cliente = next.apellido_empleado;
+      if (!next.telefono_cliente && next.telefono_empleado) next.telefono_cliente = next.telefono_empleado;
+      if (!next.numero_documento_cliente && next.numero_documento) next.numero_documento_cliente = next.numero_documento.toString();
+    }
+
+    return next;
+  };
 
   useEffect(() => {
     cargarDatos();
@@ -53,10 +85,7 @@ function UsuariosManagement() {
     const { name, value, type, checked } = e.target;
     
     if (type === "radio" && name === "rol") {
-      setFormDataUsuario(prev => ({
-        ...prev,
-        roles: checked ? [value] : []
-      }));
+      setFormDataUsuario(prev => applyRoleChange(prev, value));
     } else if (type === "checkbox") {
       setFormDataUsuario(prev => ({
         ...prev,
@@ -72,30 +101,148 @@ function UsuariosManagement() {
 
   const handleSubmitUsuario = async (e) => {
     e.preventDefault();
+    
+    // Validaciones básicas
+    if (!formDataUsuario.correo || !formDataUsuario.roles.length) {
+      alert("Por favor completa los campos obligatorios");
+      return;
+    }
+    
+    // Validaciones específicas por rol
+    const rolActual = formDataUsuario.roles[0];
+    if (rolActual === "Cliente" && (!formDataUsuario.nombre_cliente || !formDataUsuario.apellido_cliente)) {
+      alert("Por favor completa el nombre y apellido del cliente");
+      return;
+    }
+    if (rolActual === "Empleado" && (!formDataUsuario.nombre_empleado || !formDataUsuario.apellido_empleado)) {
+      alert("Por favor completa el nombre y apellido del empleado");
+      return;
+    }
+    if (rolActual === "Empleado" && !formDataUsuario.numero_documento) {
+      alert("Por favor completa el número de documento del empleado");
+      return;
+    }
+    if (rolActual === "Administrador" && !formDataUsuario.nombre_usuario) {
+      alert("Por favor completa el nombre de usuario para administradores");
+      return;
+    }
+    
     try {
+      // Generar nombre de usuario automáticamente según el rol
+      let nombreUsuarioFinal = "";
+      if (rolActual === "Administrador") {
+        nombreUsuarioFinal = formDataUsuario.nombre_usuario;
+      } else if (rolActual === "Empleado") {
+        nombreUsuarioFinal = `${formDataUsuario.nombre_empleado.toLowerCase().replace(/\s/g, '')}.${formDataUsuario.apellido_empleado.toLowerCase().replace(/\s/g, '')}`;
+      } else if (rolActual === "Cliente") {
+        nombreUsuarioFinal = `${formDataUsuario.nombre_cliente.toLowerCase().replace(/\s/g, '')}.${formDataUsuario.apellido_cliente.toLowerCase().replace(/\s/g, '')}`;
+      }
+      
+      // Datos básicos del usuario (siempre se guardan en tabla usuarios)
+      const usuarioData = {
+        correo: formDataUsuario.correo,
+        contraseña: formDataUsuario.contraseña,
+        roles: formDataUsuario.roles,
+        estado: formDataUsuario.estado,
+        nombre_usuario: nombreUsuarioFinal,
+        numero_documento: parseInt(formDataUsuario.numero_documento) || Math.floor(Date.now() / 1000)
+      };
+      
+      // Crear usuario en tabla usuarios
+      let usuarioCreado;
       if (editingUsuario) {
-        const usuarioData = {
-          nombre_usuario: formDataUsuario.nombre_usuario,
-          correo: formDataUsuario.correo,
-          roles: formDataUsuario.roles,
-          estado: formDataUsuario.estado
-        };
-        
         if (formDataUsuario.contraseña) {
           usuarioData.contraseña = formDataUsuario.contraseña;
         }
-        
         await actualizarUsuario(editingUsuario.id_usuario, usuarioData);
+        usuarioCreado = editingUsuario;
       } else {
-        const usuarioData = {
-          nombre_usuario: formDataUsuario.nombre_usuario,
+        usuarioCreado = await crearUsuario(usuarioData);
+      }
+      
+      // Guardar datos adicionales según rol
+      if (rolActual === "Cliente") {
+        const clienteData = {
+          nombre: formDataUsuario.nombre_cliente,
+          apellido: formDataUsuario.apellido_cliente,
           correo: formDataUsuario.correo,
-          contraseña: formDataUsuario.contraseña,
-          roles: formDataUsuario.roles,
-          estado: formDataUsuario.estado
+          telefono: formDataUsuario.telefono_cliente,
+          tipo_documento: formDataUsuario.tipo_documento_cliente,
+          numero_documento: formDataUsuario.numero_documento_cliente
         };
-        
-        await crearUsuario(usuarioData);
+
+        let clienteExistente = null;
+        try {
+          if (clienteData.correo) {
+            clienteExistente = await getClientePorCorreo(clienteData.correo);
+          }
+        } catch {
+          clienteExistente = null;
+        }
+
+        if (clienteExistente?.id_cliente) {
+          await actualizarCliente(clienteExistente.id_cliente, { ...clienteData, estado: true });
+        } else {
+          await crearCliente(clienteData);
+        }
+      } else if (rolActual === "Empleado") {
+        const empleadoData = {
+          nombre: formDataUsuario.nombre_empleado,
+          apellido: formDataUsuario.apellido_empleado,
+          documento: formDataUsuario.numero_documento.toString(),
+          cargo: formDataUsuario.cargo_empleado,
+          email: formDataUsuario.correo,
+          telefono: formDataUsuario.telefono_empleado
+        };
+        console.log("Datos de empleado a enviar:", empleadoData);
+
+        let empExistente = null;
+        try {
+          const empleados = await getEmpleados();
+          empExistente = Array.isArray(empleados)
+            ? empleados.find(em => (em.email || "").toLowerCase() === (empleadoData.email || "").toLowerCase())
+            : null;
+        } catch {
+          empExistente = null;
+        }
+
+        if (empExistente?.id_empleado) {
+          await actualizarEmpleado(empExistente.id_empleado, empleadoData);
+        } else {
+          await crearEmpleado(empleadoData);
+        }
+      }
+
+      // Si se está editando y cambió el rol, desactivar/eliminar el registro anterior
+      if (editingUsuario) {
+        const original = Array.isArray(originalRoles) ? originalRoles : [];
+
+        const estabaEnClientes = original.includes("Cliente") && rolActual !== "Cliente";
+        if (estabaEnClientes && formDataUsuario.correo) {
+          try {
+            const cliente = await getClientePorCorreo(formDataUsuario.correo);
+            if (cliente?.id_cliente) {
+              await actualizarCliente(cliente.id_cliente, { estado: false });
+            }
+          } catch (e) {
+            console.error("No se pudo desactivar el cliente anterior:", e);
+          }
+        }
+
+        const estabaEnEmpleados = original.includes("Empleado") && rolActual !== "Empleado";
+        if (estabaEnEmpleados && formDataUsuario.correo) {
+          try {
+            const empleados = await getEmpleados();
+            const emp = Array.isArray(empleados)
+              ? empleados.find(em => (em.email || "").toLowerCase() === formDataUsuario.correo.toLowerCase())
+              : null;
+            if (emp?.id_empleado) {
+              await eliminarEmpleado(emp.id_empleado);
+            }
+          } catch (e) {
+            console.error("No se pudo eliminar el empleado anterior:", e);
+          }
+        }
       }
       
       await cargarDatos();
@@ -104,27 +251,71 @@ function UsuariosManagement() {
       alert(editingUsuario ? "Usuario actualizado exitosamente" : "Usuario creado exitosamente");
     } catch (error) {
       console.error("Error guardando usuario:", error);
-      alert("Error al guardar el usuario: " + (error.response?.data?.message || "Intenta nuevamente"));
+      const errorMessage = error.response?.data?.message || error.message || "Intenta nuevamente";
+      alert(`Error al guardar el usuario: ${errorMessage}`);
     }
   };
 
-  const handleEditUsuario = (usuario) => {
+  const handleEditUsuario = async (usuario) => {
     console.log("Editando usuario:", usuario);
     setEditingUsuario(usuario);
-    setFormDataUsuario({
-      nombre_usuario: usuario.nombre_usuario,
+    const baseForm = {
       correo: usuario.correo,
       contraseña: "",
       roles: usuario.roles ? usuario.roles.map(rol => rol.nombre) : [],
       estado: usuario.estado,
+      numero_documento: usuario.numero_documento || "",
+      nombre_usuario: usuario.nombre_usuario || "",
       // Campos adicionales para clientes (si existen)
       nombre_cliente: usuario.nombre_cliente || "",
       apellido_cliente: usuario.apellido_cliente || "",
       telefono_cliente: usuario.telefono_cliente || "",
       tipo_documento_cliente: usuario.tipo_documento_cliente || "CC",
-      numero_documento_cliente: usuario.numero_documento_cliente || ""
-    });
+      numero_documento_cliente: usuario.numero_documento_cliente || "",
+      // Campos adicionales para empleados (si existen)
+      nombre_empleado: usuario.nombre_empleado || "",
+      apellido_empleado: usuario.apellido_empleado || "",
+      cargo_empleado: usuario.cargo_empleado || "",
+      telefono_empleado: usuario.telefono_empleado || ""
+    };
+    setFormDataUsuario(baseForm);
+    setOriginalRoles(baseForm.roles);
     setShowModalUsuario(true);
+
+    const rolesActuales = baseForm.roles;
+    try {
+      if (rolesActuales.includes("Cliente") && baseForm.correo) {
+        const cliente = await getClientePorCorreo(baseForm.correo);
+        setFormDataUsuario(prev => ({
+          ...prev,
+          nombre_cliente: cliente?.nombre ?? prev.nombre_cliente,
+          apellido_cliente: cliente?.apellido ?? prev.apellido_cliente,
+          telefono_cliente: cliente?.telefono ?? prev.telefono_cliente,
+          tipo_documento_cliente: cliente?.tipo_documento ?? prev.tipo_documento_cliente,
+          numero_documento_cliente: cliente?.numero_documento ?? prev.numero_documento_cliente,
+          numero_documento: prev.numero_documento || cliente?.numero_documento || prev.numero_documento
+        }));
+      }
+
+      if (rolesActuales.includes("Empleado") && baseForm.correo) {
+        const empleados = await getEmpleados();
+        const emp = Array.isArray(empleados)
+          ? empleados.find(e => (e.email || "").toLowerCase() === baseForm.correo.toLowerCase())
+          : null;
+        if (emp) {
+          setFormDataUsuario(prev => ({
+            ...prev,
+            nombre_empleado: emp.nombre ?? prev.nombre_empleado,
+            apellido_empleado: emp.apellido ?? prev.apellido_empleado,
+            telefono_empleado: emp.telefono ?? prev.telefono_empleado,
+            cargo_empleado: emp.cargo ?? prev.cargo_empleado,
+            numero_documento: prev.numero_documento || emp.documento || prev.numero_documento
+          }));
+        }
+      }
+    } catch (e) {
+      console.error("Error cargando datos específicos por rol:", e);
+    }
   };
 
   const handleDeleteUsuario = async (id) => {
@@ -159,19 +350,26 @@ function UsuariosManagement() {
 
   const resetForm = () => {
     setFormDataUsuario({
-      nombre_usuario: "",
       correo: "",
       contraseña: "",
       roles: [],
       estado: true,
+      numero_documento: "",
+      nombre_usuario: "",
       // Campos adicionales para clientes
       nombre_cliente: "",
       apellido_cliente: "",
       telefono_cliente: "",
       tipo_documento_cliente: "CC",
-      numero_documento_cliente: ""
+      numero_documento_cliente: "",
+      // Campos adicionales para empleados
+      nombre_empleado: "",
+      apellido_empleado: "",
+      cargo_empleado: "",
+      telefono_empleado: ""
     });
     setEditingUsuario(null);
+    setOriginalRoles([]);
   };
 
   const closeModal = () => {
@@ -258,6 +456,7 @@ function UsuariosManagement() {
                     <th>ID</th>
                     <th>Nombre de Usuario</th>
                     <th>Correo</th>
+                    <th>Número de Identificación</th>
                     <th>Estado</th>
                     <th>Roles</th>
                     <th>Fecha de Creación</th>
@@ -277,6 +476,7 @@ function UsuariosManagement() {
                         <strong>{usuario.nombre_usuario}</strong>
                       </td>
                       <td>{usuario.correo}</td>
+                      <td>{usuario.numero_documento ?? '-'}</td>
                       <td>
                         <div className="d-flex align-items-center">
                           <span className={`badge me-2 d-flex align-items-center`} style={{
@@ -360,7 +560,7 @@ function UsuariosManagement() {
       {/* Modal */}
       {showModalUsuario && (
         <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -370,176 +570,470 @@ function UsuariosManagement() {
               </div>
               <form onSubmit={handleSubmitUsuario}>
                 <div className="modal-body">
-                  <div className="row g-4 mb-4">
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Nombre de Usuario</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-lg"
-                        name="nombre_usuario"
-                        value={formDataUsuario.nombre_usuario}
-                        onChange={handleInputChange}
-                        required
-                        disabled={editingUsuario}
-                        placeholder="Ej: admin123"
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Correo Electrónico</label>
-                      <input
-                        type="email"
-                        className="form-control form-control-lg"
-                        name="correo"
-                        value={formDataUsuario.correo}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="correo@ejemplo.com"
-                      />
-                    </div>
-                  </div>
-                  <div className="row g-4 mb-4">
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Contraseña</label>
-                      <input
-                        type="password"
-                        className="form-control form-control-lg"
-                        name="contraseña"
-                        value={formDataUsuario.contraseña}
-                        onChange={handleInputChange}
-                        required={!editingUsuario}
-                        placeholder={editingUsuario ? "Dejar en blanco para mantener" : "Mínimo 6 caracteres"}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold text-primary">Estado</label>
-                      <select
-                        className="form-select form-select-lg"
-                        name="estado"
-                        value={formDataUsuario.estado}
-                        onChange={handleInputChange}
-                      >
-                        <option value={true}>Activo</option>
-                        <option value={false}>Inactivo</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="mb-5">
-                    <label className="form-label fw-bold text-primary">Rol del Usuario</label>
-                    <div className="d-flex gap-4 p-4 bg-light rounded">
+                  {/* Selección de Rol - Primera sección */}
+                  <div className="text-center mb-5">
+                    <h4 className="mb-4 fw-bold" style={{ color: "#a67c52" }}>
+                      <i className="bi bi-person-badge me-2"></i>
+                      Selecciona el Rol del Usuario
+                    </h4>
+                    <div className="row g-4 justify-content-center">
                       {roles.map(rol => {
                         const rolValue = typeof rol === 'string' ? rol : rol.nombre;
+                        const isSelected = formDataUsuario.roles.includes(rolValue);
+                        
+                        // Definir colores según el rol (solo tonos de café del hotel)
+                        const roleColors = {
+                          'Administrador': { bg: '#8b6f47', border: '#8b6f47', text: '#8b6f47' },
+                          'Empleado': { bg: '#a67c52', border: '#a67c52', text: '#a67c52' },
+                          'Cliente': { bg: '#c4a57b', border: '#c4a57b', text: '#c4a57b' }
+                        };
+                        const colors = roleColors[rolValue] || { bg: '#6c757d', border: '#6c757d', text: '#6c757d' };
+                        
                         return (
-                          <div key={rolValue} className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="rol"
-                              id={`rol-${rolValue}`}
-                              value={rolValue}
-                              checked={formDataUsuario.roles.includes(rolValue)}
-                              onChange={handleInputChange}
-                            />
-                            <label className="form-check-label fw-semibold" htmlFor={`rol-${rolValue}`}>
-                              {rolValue}
-                            </label>
+                          <div key={rolValue} className="col-md-4 col-sm-6">
+                            <div 
+                              className={`card h-100 border-3 cursor-pointer transition-all ${
+                                isSelected 
+                                  ? 'shadow-lg' 
+                                  : 'hover:shadow'
+                              }`}
+                              style={{ 
+                                cursor: 'pointer',
+                                borderColor: isSelected ? colors.border : '#dee2e6',
+                                backgroundColor: isSelected ? 'white' : 'white',
+                                borderRadius: '8px'
+                              }}
+                              onClick={() => {
+                                setFormDataUsuario(prev => applyRoleChange(prev, rolValue));
+                              }}
+                            >
+                              <div className="card-body text-center p-4">
+                                <div className={`rounded-circle mx-auto mb-3 p-3 ${
+                                  isSelected ? '' : 'bg-light'
+                                }`} style={{ 
+                                  backgroundColor: isSelected ? colors.bg : '#f8f9fa'
+                                }}>
+                                  <i className={`bi ${
+                                    rolValue === 'Administrador' ? 'bi-shield-check' :
+                                    rolValue === 'Empleado' ? 'bi-briefcase' :
+                                    'bi-person'
+                                  } fs-1 ${isSelected ? 'text-white' : ''}`} style={{ 
+                                    color: isSelected ? 'white' : colors.text 
+                                  }}></i>
+                                </div>
+                                <h5 className={`card-title mb-3 fw-bold ${
+                                  isSelected ? '' : ''
+                                }`} style={{ 
+                                  color: isSelected ? colors.text : '#6c757d'
+                                }}>
+                                  {rolValue}
+                                </h5>
+                                <p className="mb-0" style={{ 
+                                  color: isSelected ? colors.text : '#6c757d',
+                                  fontSize: '0.9rem'
+                                }}>
+                                  {rolValue === 'Administrador' ? 'Acceso total al sistema' :
+                                   rolValue === 'Empleado' ? 'Personal del hotel' :
+                                   'Huéspedes del hotel'}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Campos adicionales para clientes */}
-                  {formDataUsuario.roles.includes("Cliente") && (
-                    <div className="border border-2 rounded p-5 mb-4" style={{ borderColor: "#a67c52", backgroundColor: "#faf8f6" }}>
-                      <div className="d-flex align-items-center mb-5">
-                        <div className="rounded-circle p-3 me-3" style={{ backgroundColor: "#a67c52" }}>
-                          <i className="bi bi-person-badge text-white fs-5"></i>
+                  {/* Campos específicos según el rol seleccionado */}
+                  {formDataUsuario.roles.length > 0 && (
+                    <div className="border-top pt-4" style={{ borderColor: "#e9ecef" }}>
+                      {/* Campos para Administrador */}
+                      {formDataUsuario.roles.includes("Administrador") && (
+                        <div className="mb-5 p-4 rounded" style={{ backgroundColor: "#faf8f6" }}>
+                          <div className="d-flex align-items-center mb-4">
+                            <div className="rounded-circle p-3 me-3" style={{ backgroundColor: "#8b6f47" }}>
+                              <i className="bi bi-shield-check text-white fs-4"></i>
+                            </div>
+                            <div>
+                              <h5 className="mb-1 fw-bold" style={{ color: "#8b6f47" }}>
+                                Datos del Administrador
+                              </h5>
+                              <small style={{ color: "#6c757d" }}>Configura el acceso del administrador</small>
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#8b6f47" }}>
+                                <i className="bi bi-person me-1"></i>
+                                Nombre de Usuario <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="nombre_usuario"
+                                value={formDataUsuario.nombre_usuario}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Ej: admin123"
+                                style={{ borderColor: "#8b6f47" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#8b6f47" }}>
+                                <i className="bi bi-card-text me-1"></i>
+                                Número de Documento <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                className="form-control form-control-lg border-2"
+                                name="numero_documento"
+                                value={formDataUsuario.numero_documento}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Ej: 123456789"
+                                style={{ borderColor: "#8b6f47" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#8b6f47" }}>
+                                <i className="bi bi-envelope me-1"></i>
+                                Correo Electrónico <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                className="form-control form-control-lg border-2"
+                                name="correo"
+                                value={formDataUsuario.correo}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="admin@ejemplo.com"
+                                style={{ borderColor: "#8b6f47" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#8b6f47" }}>
+                                <i className="bi bi-lock me-1"></i>
+                                Contraseña
+                              </label>
+                              <input
+                                type="password"
+                                className="form-control form-control-lg"
+                                name="contraseña"
+                                value={formDataUsuario.contraseña}
+                                onChange={handleInputChange}
+                                required={!editingUsuario}
+                                placeholder={editingUsuario ? "Dejar en blanco para mantener" : "Mínimo 6 caracteres"}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#8b6f47" }}>
+                                <i className="bi bi-toggle-on me-1"></i>
+                                Estado
+                              </label>
+                              <select
+                                className="form-select form-select-lg"
+                                name="estado"
+                                value={formDataUsuario.estado}
+                                onChange={handleInputChange}
+                              >
+                                <option value={true}>Activo</option>
+                                <option value={false}>Inactivo</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h6 className="mb-1 fw-bold" style={{ color: "#a67c52" }}>
-                            Información del Cliente
-                          </h6>
-                          <small className="text-muted">* Campos obligatorios</small>
+                      )}
+
+                      {/* Campos para Cliente */}
+                      {formDataUsuario.roles.includes("Cliente") && (
+                        <div className="mb-5 p-4 rounded" style={{ backgroundColor: "#faf8f6" }}>
+                          <div className="d-flex align-items-center mb-4">
+                            <div className="rounded-circle p-3 me-3" style={{ backgroundColor: "#c4a57b" }}>
+                              <i className="bi bi-person-badge text-white fs-4"></i>
+                            </div>
+                            <div>
+                              <h5 className="mb-1 fw-bold" style={{ color: "#c4a57b" }}>
+                                Datos del Cliente
+                              </h5>
+                              <small style={{ color: "#6c757d" }}>Información personal del huésped</small>
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-person me-1"></i>
+                                Nombre <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="nombre_cliente"
+                                value={formDataUsuario.nombre_cliente}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Nombre completo"
+                                style={{ borderColor: "#c4a57b" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-person me-1"></i>
+                                Apellido <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="apellido_cliente"
+                                value={formDataUsuario.apellido_cliente}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Apellido completo"
+                                style={{ borderColor: "#c4a57b" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-telephone me-1"></i>
+                                Teléfono <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                className="form-control form-control-lg border-2"
+                                name="telefono_cliente"
+                                value={formDataUsuario.telefono_cliente}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="3001234567"
+                                style={{ borderColor: "#c4a57b" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-envelope me-1"></i>
+                                Correo Electrónico <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                className="form-control form-control-lg border-2"
+                                name="correo"
+                                value={formDataUsuario.correo}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="cliente@ejemplo.com"
+                                style={{ borderColor: "#c4a57b" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-card-text me-1"></i>
+                                Número de Documento <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="numero_documento_cliente"
+                                value={formDataUsuario.numero_documento_cliente}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="123456789"
+                                style={{ borderColor: "#c4a57b" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-lock me-1"></i>
+                                Contraseña
+                              </label>
+                              <input
+                                type="password"
+                                className="form-control form-control-lg"
+                                name="contraseña"
+                                value={formDataUsuario.contraseña}
+                                onChange={handleInputChange}
+                                required={!editingUsuario}
+                                placeholder={editingUsuario ? "Dejar en blanco para mantener" : "Mínimo 6 caracteres"}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-12">
+                              <label className="form-label fw-bold" style={{ color: "#c4a57b" }}>
+                                <i className="bi bi-toggle-on me-1"></i>
+                                Estado
+                              </label>
+                              <select
+                                className="form-select form-select-lg"
+                                name="estado"
+                                value={formDataUsuario.estado}
+                                onChange={handleInputChange}
+                              >
+                                <option value={true}>Activo</option>
+                                <option value={false}>Inactivo</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="row g-4 mb-4">
-                        <div className="col-md-6">
-                          <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
-                            Nombre <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control form-control-lg"
-                            name="nombre_cliente"
-                            value={formDataUsuario.nombre_cliente}
-                            onChange={handleInputChange}
-                            placeholder="Nombre completo"
-                            required={formDataUsuario.roles.includes("Cliente")}
-                          />
+                      )}
+
+                      {/* Campos para Empleado */}
+                      {formDataUsuario.roles.includes("Empleado") && (
+                        <div className="mb-5 p-4 rounded" style={{ backgroundColor: "#faf8f6" }}>
+                          <div className="d-flex align-items-center mb-4">
+                            <div className="rounded-circle p-3 me-3" style={{ backgroundColor: "#a67c52" }}>
+                              <i className="bi bi-briefcase text-white fs-4"></i>
+                            </div>
+                            <div>
+                              <h5 className="mb-1 fw-bold" style={{ color: "#a67c52" }}>
+                                Datos del Empleado
+                              </h5>
+                              <small style={{ color: "#6c757d" }}>Información del personal del hotel</small>
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-person me-1"></i>
+                                Nombre <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="nombre_empleado"
+                                value={formDataUsuario.nombre_empleado}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Nombre completo"
+                                style={{ borderColor: "#a67c52" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-person me-1"></i>
+                                Apellido <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control form-control-lg border-2"
+                                name="apellido_empleado"
+                                value={formDataUsuario.apellido_empleado}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Apellido completo"
+                                style={{ borderColor: "#a67c52" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-card-text me-1"></i>
+                                Documento <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                className="form-control form-control-lg border-2"
+                                name="numero_documento"
+                                value={formDataUsuario.numero_documento}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="123456789"
+                                style={{ borderColor: "#a67c52" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-briefcase me-1"></i>
+                                Cargo <span className="text-danger">*</span>
+                              </label>
+                              <select
+                                className="form-select form-select-lg border-2"
+                                name="cargo_empleado"
+                                value={formDataUsuario.cargo_empleado}
+                                onChange={handleInputChange}
+                                required
+                                style={{ borderColor: "#a67c52" }}
+                              >
+                                <option value="">Selecciona un cargo</option>
+                                <option value="Recepcionista">Recepcionista</option>
+                                <option value="Aseador">Aseador</option>
+                              </select>
+                            </div>
+                            <div className="col-md-12">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-envelope me-1"></i>{" "}Correo Electrónico <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                className="form-control form-control-lg border-2"
+                                name="correo"
+                                value={formDataUsuario.correo}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="empleado@ejemplo.com"
+                                style={{ borderColor: "#a67c52" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-telephone me-1"></i>
+                                Teléfono <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                className="form-control form-control-lg border-2"
+                                name="telefono_empleado"
+                                value={formDataUsuario.telefono_empleado}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="3001234567"
+                                style={{ borderColor: "#a67c52" }}
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-lock me-1"></i>
+                                Contraseña
+                              </label>
+                              <input
+                                type="password"
+                                className="form-control form-control-lg"
+                                name="contraseña"
+                                value={formDataUsuario.contraseña}
+                                onChange={handleInputChange}
+                                required={!editingUsuario}
+                                placeholder={editingUsuario ? "Dejar en blanco para mantener" : "Mínimo 6 caracteres"}
+                              />
+                            </div>
+                          </div>
+                          <div className="row g-4">
+                            <div className="col-12">
+                              <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
+                                <i className="bi bi-toggle-on me-1"></i>
+                                Estado
+                              </label>
+                              <select
+                                className="form-select form-select-lg"
+                                name="estado"
+                                value={formDataUsuario.estado}
+                                onChange={handleInputChange}
+                              >
+                                <option value={true}>Activo</option>
+                                <option value={false}>Inactivo</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
-                        <div className="col-md-6">
-                          <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
-                            Apellido <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control form-control-lg"
-                            name="apellido_cliente"
-                            value={formDataUsuario.apellido_cliente}
-                            onChange={handleInputChange}
-                            placeholder="Apellido completo"
-                            required={formDataUsuario.roles.includes("Cliente")}
-                          />
-                        </div>
-                      </div>
-                      <div className="row g-4 mb-4">
-                        <div className="col-md-6">
-                          <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
-                            Teléfono <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="tel"
-                            className="form-control form-control-lg"
-                            name="telefono_cliente"
-                            value={formDataUsuario.telefono_cliente}
-                            onChange={handleInputChange}
-                            placeholder="3001234567"
-                            required={formDataUsuario.roles.includes("Cliente")}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
-                            Tipo de Documento <span className="text-danger">*</span>
-                          </label>
-                          <select
-                            className="form-select form-select-lg"
-                            name="tipo_documento_cliente"
-                            value={formDataUsuario.tipo_documento_cliente}
-                            onChange={handleInputChange}
-                            required={formDataUsuario.roles.includes("Cliente")}
-                          >
-                            <option value="CC">Cédula de Ciudadanía</option>
-                            <option value="CE">Cédula de Extranjería</option>
-                            <option value="PASAPORTE">Pasaporte</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="row g-4">
-                        <div className="col-12">
-                          <label className="form-label fw-bold" style={{ color: "#a67c52" }}>
-                            Número de Documento <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control form-control-lg"
-                            name="numero_documento_cliente"
-                            value={formDataUsuario.numero_documento_cliente}
-                            onChange={handleInputChange}
-                            placeholder="123456789"
-                            required={formDataUsuario.roles.includes("Cliente")}
-                          />
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>
